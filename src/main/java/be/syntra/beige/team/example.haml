@@ -1,0 +1,38 @@
+%html
+  %head
+    %meta
+  %body
+    %h1 HAML test file
+    #content
+      .left.column
+        %h2 Welcome to our site!
+        %p#intro paragraph1
+      .right.column
+        %foo text 1
+        %bar
+          text 2
+        %p#sideIntro.pside paragraph2
+        %foo
+          %bar
+            text
+        %foo
+          text 1
+        %bar
+          text 2
+        %
+          bla bla just a div
+        %img(src="/images/loading.gif")
+        %blockquote#myQuote<
+          %div
+            Foo!
+        %img
+        %img>
+        %img
+      .main.column
+        %p<= "Foo\nBar"
+      .wspace.column
+        %img
+        %pre><
+          foo
+          bar
+        %img
