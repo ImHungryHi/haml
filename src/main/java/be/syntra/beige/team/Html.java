@@ -26,13 +26,16 @@ public class Html {
     private String outputFileName;
     private ArrayList<String> htmlElements;
 
-
     /**
-     * Constructor
+     * Constructors
      */
     public Html(String inputFileName, String outputFileName){
         this.inputFileName = inputFileName;
         this.outputFileName = outputFileName;
+    }
+
+    public Html(String inputFileName) {
+        this.inputFileName = inputFileName;
     }
 
     /**
@@ -40,7 +43,12 @@ public class Html {
      */
     @Override
     public String toString() {
-        String output = "Html output for file: '" + outputFileName + "'\n";
+        String output = "";
+
+        if (outputFileName != null && !outputFileName.equals("")) {
+            output += "Html output for file: '" + outputFileName + "'\n";
+        }
+
         for(String s : htmlElements){
             //output += s + "\n";
             output += s;
