@@ -110,6 +110,42 @@ public class HamlConverter {
         return wsrmType;
     }
 
+    // Todo: returnHasText method here (boolean)
+    // Return whether text was found in line
+    //
+
+    // Todo: returnTextContent method here (String)
+    // Return the actual text content found in the line
+    //
+
+    // Todo: returnIsComment method here (boolean)
+    // Return whether a comment was found in line
+    //
+
+    // Todo: returnCommentType method here (String, either 'htmlComment' or 'hamlComment')
+    // Return the commenttype found in line (htmlComment or hamlComment)
+    //
+
+    // Todo: returnCommentContent method here (String)
+    // Return the comment content
+    //
+
+    // Todo: returnHasEscaping method here (boolean)
+    // Return if escape symbol was found in line
+    //
+
+    // Todo: returnEscapedContent method here (String)
+    // Return escaped content found in line
+    //
+
+    // Todo: returnClassNames method here (String)
+    // Return classNames
+    //
+
+    // Todo: returnAttributes method here (HashMap<String,String>)
+    // Return attributes
+    //
+
 
     // Convert a String to a HamlDataElement object
     //
