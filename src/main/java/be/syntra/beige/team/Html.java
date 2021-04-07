@@ -48,6 +48,9 @@ public class Html {
         if (outputFileName != null && !outputFileName.equals("")) {
             output += "Html output for file: '" + outputFileName + "'\n";
         }
+        else {
+            output += "Html converted from file: '" + inputFileName + "'\n";
+        }
 
         for(String s : htmlElements){
             //output += s + "\n";
