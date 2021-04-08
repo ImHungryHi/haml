@@ -1,5 +1,6 @@
 package be.syntra.beige.team;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -53,7 +54,8 @@ public class HamlDataElement {
     private String className;
     private HashMap<String,String> attributes;
 
-
+    private HamlDataElement parent;
+    private ArrayList<HamlDataElement> children;
 
     /**
      *
@@ -86,6 +88,7 @@ public class HamlDataElement {
         this.escapedContent = escapedContent;
         this.hasWhiteSpaceRemoval = hasWhiteSpaceRemoval;
         this.whiteSpaceRemovalType = whiteSpaceRemovalType;
+        this.children = new ArrayList<>();
     }
 
     public HamlDataElement(int lineNumber,
@@ -117,6 +120,7 @@ public class HamlDataElement {
         this.hasWhiteSpaceRemoval = hasWhiteSpaceRemoval;
         this.whiteSpaceRemovalType = whiteSpaceRemovalType;
         this.id = id;
+        this.children = new ArrayList<>();
     }
 
     public HamlDataElement(int lineNumber,
@@ -150,6 +154,7 @@ public class HamlDataElement {
         this.whiteSpaceRemovalType = whiteSpaceRemovalType;
         this.id = id;
         this.className = className;
+        this.children = new ArrayList<>();
     }
 
     public HamlDataElement(int lineNumber,
@@ -185,6 +190,19 @@ public class HamlDataElement {
         this.id = id;
         this.className = className;
         this.attributes = attributes;
+        this.children = new ArrayList<>();
+    }
+
+    /**
+     * Functions
+     */
+    // This is kind of a setter, but also not really; adds a child to the above list
+    public void addChild(HamlDataElement child){
+        if (this.children == null) {
+            this.children = new ArrayList<HamlDataElement>();
+        }
+
+        this.children.add(child);
     }
 
     // Overrides
@@ -278,6 +296,22 @@ public class HamlDataElement {
         return attributes;
     }
 
+    public HamlDataElement getParent() {
+        return parent;
+    }
+
+    public ArrayList<HamlDataElement> getChildren() {
+        return children;
+    }
+
+    public HamlDataElement getChild(int id) {
+        if (children.size() < id) {
+            return null;
+        }
+
+        return children.get(id);
+    }
+
 
     /**
      * Setters
@@ -352,5 +386,13 @@ public class HamlDataElement {
 
     public void setAttributes(HashMap<String, String> attributes) {
         this.attributes = attributes;
+    }
+
+    public void setParent(HamlDataElement parent) {
+        this.parent = parent;
+    }
+
+    public void setChildren(ArrayList<HamlDataElement> children) {
+        this.children = children;
     }
 }
