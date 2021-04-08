@@ -30,12 +30,20 @@ public class Html {
      * Constructors
      */
     public Html(String inputFileName, String outputFileName){
-        this.inputFileName = inputFileName;
+        this(inputFileName);
         this.outputFileName = outputFileName;
     }
 
     public Html(String inputFileName) {
         this.inputFileName = inputFileName;
+        this.htmlElements = new ArrayList<>();
+    }
+
+    /**
+     * Functions
+     */
+    public void addElement(String element) {
+        htmlElements.add(element);
     }
 
     /**
@@ -52,17 +60,21 @@ public class Html {
             output += "Html converted from file: '" + inputFileName + "'\n";
         }
 
+        if (htmlElements.isEmpty()) {
+            output += "Nothing is parsed yet, call 1-800-FIXIT!";
+        }
+
         for(String s : htmlElements){
             //output += s + "\n";
             output += s;
         }
+
         return output;
     }
 
     /**
      * Getters
      */
-
     public String getInputFileName() {
         return inputFileName;
     }
