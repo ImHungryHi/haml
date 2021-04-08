@@ -2,6 +2,7 @@ package be.syntra.beige.team;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <h1>HtmlConverter</h1>
@@ -46,6 +47,15 @@ public class HtmlConverter {
 
             if (el.getId() != null) {
                 beginTag += " id='" + el.getId() + "'";
+            }
+
+            if (el.getClassName() != null) {
+                beginTag += " class='" + el.getClassName() + "'";
+            }
+
+            // If no attributes are present, this block is just skipped
+            for (Map.Entry<String, String> entry : el.getAttributes().entrySet()) {
+                beginTag += " " + entry.getKey() + "='" + entry.getValue() + "'";
             }
 
             beginTag += ">";
