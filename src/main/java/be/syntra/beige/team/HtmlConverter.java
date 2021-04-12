@@ -1,9 +1,6 @@
 package be.syntra.beige.team;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <h1>HtmlConverter</h1>
@@ -54,9 +51,12 @@ public class HtmlConverter {
                 beginTag += " class='" + el.getClassName() + "'";
             }
 
-            // If no attributes are present, this block is just skipped
-            for (Map.Entry<String, String> entry : el.getAttributes().entrySet()) {
-                beginTag += " " + entry.getKey() + "='" + entry.getValue() + "'";
+            HashMap<String, String> attributes = el.getAttributes();
+
+            if (attributes != null && !attributes.isEmpty()) {
+                for (Map.Entry<String, String> entry : el.getAttributes().entrySet()) {
+                    beginTag += " " + entry.getKey() + "='" + entry.getValue() + "'";
+                }
             }
 
             beginTag += ">";
@@ -114,7 +114,6 @@ public class HtmlConverter {
         return null;
     }
 
-    // Going to rewrite
     public static void convertToHtml(HamlDataElement el, Html html) {
         if (!el.isTag()) {
             String commentContent = createCommentContent(el);
@@ -160,76 +159,12 @@ public class HtmlConverter {
         html.addElement(createEndTag(el));
     }
 
-    /*
     public static void convertToHtml(ArrayList<HamlDataElement> elements, Html html) {
-        String htmlElement = "";
-        ArrayList<String> htmlElements = new ArrayList<String>();
-
-        HamlDataElement currEl = null;
-        HamlDataElement prevEl = null;
-        HamlDataElement nextEl = null;
-        ArrayList<HamlDataElement> parents = new ArrayList<>();
-        HashMap<Integer,Boolean> prevOutwardWsrm = new HashMap<Integer,Boolean>();
-
-        for (int i = 0; i < elements.size(); i++) {
-            // Set previous, current, next & parent HamlDataElements
-            currEl = elements.get(i);
-            prevEl = i != 0 ? elements.get(i-1) : null;
-            nextEl = i != elements.size() - 1 ? elements.get(i+1) : null;
-
-            // When going a level deeper, store the parent
-            if (prevEl != null && currEl.getDepth() > prevEl.getDepth()) {
-                parents.add(prevEl);
+        // Let's start parsing from the top - ie the html tag
+        for (HamlDataElement el : elements) {
+            if (el.getDepth() == 0) {
+                convertToHtml(el, html);
             }
-
-            boolean prevHasWSRMBefore = prevEl.getWhiteSpaceRemovalType().contains("<"),
-                    prevHasWSRMAfter = prevEl.getWhiteSpaceRemovalType().contains(">"),
-                    curHasWSRMAfter = currEl.getWhiteSpaceRemovalType().contains(">");
-
-            // Create indentation + beginTag
-            // Create newline (\n), taking whitespaceremoval symbols into account
-            if (i != 0 &&
-                    !(prevHasWSRMBefore || prevHasWSRMAfter) &&
-                    !curHasWSRMAfter
-                // Todo
-                // Still needs an extra check here:
-                // the first preceding element of the same depth as currEl, cannot have a WhiteSpaceRemovalType '>'
-                // see last whitespaceremoval case in example.haml file
-            )
-            {
-                htmlElement = "\n" + createIndentation(currEl) + createBeginTag(currEl);
-            }
-            else {
-                htmlElement = createBeginTag(currEl);
-            }
-
-            // Closing tag logic
-            //
-            if (nextEl != null && nextEl.getDepth() <= currEl.getDepth()) {
-                // Close current element when next element is same level or higher
-                htmlElement += createEndTag(currEl);
-
-                // When there are parent tags, close those that are deeper then next element
-                for (int j = parents.size(); j > nextEl.getDepth(); j--) {
-                    htmlElement += "\n";
-                    htmlElement += createIndentation(parents.get(j-1)) + createEndTag(parents.get(j-1));
-                    parents.remove(j-1);
-                }
-            }
-
-            // Close remaining tags for the last element
-            if (i == elements.size() - 1) {
-                for (int k = parents.size()-1; k >= 0; k--) {
-                    htmlElement += "\n" + createIndentation(parents.get(k)) + createEndTag(parents.get(k));
-                    parents.remove(k);
-                }
-            }
-
-            // Add html line to html output array
-            htmlElements.add(htmlElement);
         }
-
-        html.setHtmlElements(htmlElements);
-    }*/
-
+    }
 }
