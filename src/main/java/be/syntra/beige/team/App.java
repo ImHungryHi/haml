@@ -45,7 +45,7 @@ public class App {
             // Create Html object
             Html html = new Html(hd.getInputFileName(), hd.getOutputFileName());
             // Pass HamlDataElements to HtmlConverter
-            HtmlConverter.convertToHtml(hd.getHamlDataElements().get(0), html);
+            HtmlConverter.convertToHtml(hd.getHamlDataElements(), html);
 
             // Temporary:
             // print Html to console
