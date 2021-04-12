@@ -156,7 +156,7 @@ public class HtmlConverter {
         }
 
         // Close off this element's tag
-        html.addElement(createEndTag(el));
+        html.addElement(((el.getChildren().size() > 0 || output.contains("\n")) ? indents : "") + createEndTag(el));
     }
 
     public static void convertToHtml(ArrayList<HamlDataElement> elements, Html html) {
