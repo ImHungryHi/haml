@@ -203,12 +203,28 @@ public class HamlDataElement {
         }
 
         this.children.add(child);
+        child.setParent(this);
     }
 
     // Overrides
     //
     @Override
     public String toString() {
+        String strChildren = "";
+
+        if (children.size() < 1) {
+            strChildren = "None";
+        }
+        else {
+            HamlDataElement child = children.get(0);
+            strChildren = (child.isComment ? "Comment" : child.tagName);
+
+            for (int x = 1; x < children.size(); x++) {
+                child = children.get(x);
+                strChildren += ", " + (child.isComment ? "Comment" : child.tagName);
+            }
+        }
+
         return "HamlDataElement => " +
                 "lineNumber=" + lineNumber +
                 ", depth=" + depth +
@@ -225,7 +241,9 @@ public class HamlDataElement {
                 ", whiteSpaceRemovalType='" + whiteSpaceRemovalType + '\'' +
                 ", id='" + id + '\'' +
                 ", className='" + className + '\'' +
-                ", attributes=" + attributes;
+                ", attributes=" + attributes +
+                ", parent=" + (parent.isComment ? "Comment" : parent.tagName) +
+                ", children=" + strChildren;
     }
 
 
@@ -390,6 +408,10 @@ public class HamlDataElement {
 
     public void setParent(HamlDataElement parent) {
         this.parent = parent;
+
+        if (!this.parent.children.contains(this)) {
+            this.parent.addChild(this);
+        }
     }
 
     public void setChildren(ArrayList<HamlDataElement> children) {
