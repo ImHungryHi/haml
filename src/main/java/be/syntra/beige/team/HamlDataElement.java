@@ -287,7 +287,8 @@ element.setChildren(children);
                 ", id='" + id + '\'' +
                 ", className='" + className + '\'' +
                 ", attributes=" + attributes +
-                ", parent=" + (parent.isComment ? "Comment" : parent.tagName) +
+                //", parent=" + (parent.isComment ? "Comment" : parent.tagName) +
+                (parent != null ? ", parent=" + (parent.isComment ? "Comment" : parent.tagName) : "") +
                 ", children=" + strChildren;
     }
 
