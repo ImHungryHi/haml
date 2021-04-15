@@ -270,26 +270,33 @@ element.setChildren(children);
             }
         }
 
+        /*String toStringIndent = "";// = Config.INDENTATION;
+        for(int i = 0; i < this.getDepth(); i++){
+            toStringIndent += Config.INDENTATION;
+        }*/
+
         return "HamlDataElement => " +
                 "lineNumber=" + lineNumber +
                 ", depth=" + depth +
                 ", isTag=" + isTag +
                 ", tagName='" + tagName + '\'' +
-                ", hasText=" + hasText +
-                ", textContent='" + textContent + '\'' +
-                ", isComment=" + isComment +
-                ", commentType='" + commentType + '\'' +
-                ", commentContent='" + commentContent + '\'' +
-                ", hasEscaping=" + hasEscaping +
-                ", escapedContent='" + escapedContent + '\'' +
-                ", hasWhiteSpaceRemoval=" + hasWhiteSpaceRemoval +
-                ", whiteSpaceRemovalType='" + whiteSpaceRemovalType + '\'' +
+                //", hasText=" + hasText +
+                //", textContent='" + textContent + '\'' +
+                //", isComment=" + isComment +
+                //", commentType='" + commentType + '\'' +
+                //", commentContent='" + commentContent + '\'' +
+                //", hasEscaping=" + hasEscaping +
+                //", escapedContent='" + escapedContent + '\'' +
+                //", hasWhiteSpaceRemoval=" + hasWhiteSpaceRemoval +
+                //", whiteSpaceRemovalType='" + whiteSpaceRemovalType + '\'' +
                 ", id='" + id + '\'' +
-                ", className='" + className + '\'' +
-                ", attributes=" + attributes +
+                //", className='" + className + '\'' +
+                //", attributes=" + attributes +
                 //", parent=" + (parent.isComment ? "Comment" : parent.tagName) +
                 (parent != null ? ", parent=" + (parent.isComment ? "Comment" : parent.tagName) : "") +
-                ", children=" + strChildren;
+                //", children=" + strChildren;
+                //", children=" + children;
+                (children.size() != 0 ? ", children=\n" + Config.INDENTATION + children : "");
     }
 
 

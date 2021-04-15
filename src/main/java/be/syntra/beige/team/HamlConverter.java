@@ -1,5 +1,6 @@
 package be.syntra.beige.team;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -362,6 +363,93 @@ public class HamlConverter {
 
 
         return el;
+    }
+
+    // Converts the hamlDataElements array of a Haml object to
+    // a nested array of HamlDataElements usable for the HtmlConverter
+    //
+    static HamlData nestHamlDataElements(HamlData hamlData){
+        ArrayList<HamlDataElement> originalElements = hamlData.getHamlDataElements();
+        ArrayList<HamlDataElement> nestedElements = new ArrayList<>();
+
+        ArrayList<HamlDataElement> parents = new ArrayList<>();
+        HamlDataElement parentEl = null;
+        HamlDataElement currEl = null;
+        int currDepth = 0;
+        int depthChange = 0;
+
+        for(int i = 0; i < originalElements.size(); i++){
+            currEl = originalElements.get(i);
+
+            if (currEl.getDepth() == currDepth) {
+
+                // If no parent element existed, the current one is the parent, otherwise the parent remains
+                parentEl = parentEl == null ? currEl : parentEl;
+                // Add the parent to the parents list
+                if(parentEl == null){ parents.add(currEl); }
+
+                    // System.out.print(currEl.getLineNumber() + " " + currEl.getDepth() + " I'm same level");
+
+                    /*if(currEl.getDepth() != 0){
+                        System.out.println("=> my parent is on line " + parents.get(parents.size()-1).getLineNumber());
+                    }else{
+                        System.out.print("\n");
+                    }*/
+
+                // If currEl.getDepth() == 0 => Add element to root level of nestedElements
+                // Else => It needs to be added to its parent
+                if(currEl.getDepth() == 0){
+                    nestedElements.add(currEl);
+                }else{
+                    parents.get(parents.size()-1).addChild(currEl);
+                }
+
+
+
+            }
+
+            if (currEl.getDepth() == currDepth + 1) {
+                    // System.out.print(currEl.getLineNumber() + " " + currEl.getDepth() + " I'm level deeper");
+
+                // The parent element is the previous hamlDataElement
+                parentEl = originalElements.get(i-1);
+                // Add it to the parents list
+                parents.add(parentEl);
+                    //System.out.println("=> my parent is on line " + parentEl.getLineNumber());
+
+                // Add current element as a child to its parent
+                parentEl.addChild(currEl);
+
+                // Raise the current depth level
+                currDepth++;
+            }
+
+            if (currEl.getDepth() < currDepth) {
+                // check how many levels the current element went up
+                depthChange = parents.size() - currEl.getDepth();
+                    //System.out.println(depthChange);
+
+                // Remove the deeper elements from parents list
+                for(int j = parents.size(); j > currEl.getDepth(); j--){
+                    parents.remove(j-1);
+                }
+
+                    // System.out.print(currEl.getLineNumber() + " " + currEl.getDepth() + " I'm level higher");
+                    /* System.out.println("=> my parent is on line " +
+                            parents.get(parents.size()-1).getLineNumber()
+                    ); */
+
+                // Add the current element to its parent
+                parents.get(parents.size()-1).addChild(currEl);
+
+                // Change the current depth with the amount of levels it went up
+                currDepth = currDepth - depthChange;
+            }
+
+        }
+
+        hamlData.hamlDataElements = nestedElements; //null;
+        return hamlData;
     }
 
 }

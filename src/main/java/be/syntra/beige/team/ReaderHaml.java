@@ -98,6 +98,9 @@ public class ReaderHaml {
             myHamlData.hamlDataElements.add(HamlConverter.convertToElement(line));
         }
 
+        // Optimize hamlDataElements array in the Haml object for the Htmlconverter
+        HamlConverter.nestHamlDataElements(myHamlData);
+
         // Todo
         // Close the reader
 
