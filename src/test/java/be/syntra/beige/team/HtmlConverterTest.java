@@ -37,10 +37,10 @@ public class HtmlConverterTest extends TestCase {
         HamlDataElement body = new HamlDataElement(3, 1, true, "body", false, null, false, null, null, false, null, false, null);
         HamlDataElement h1 = new HamlDataElement(4, 2, true, "h1", true, "Page header", false, null, null, false, null, false, null);
         HamlDataElement commentBlock = new HamlDataElement(5, 3, false, null, false, null, true, "html", "An example:", false, null, false, null);
-        HamlDataElement commentBlockHeader = new HamlDataElement(6, 4, true, "h1", true, "Example header", false, null, null, false, null, false, null);
-        HamlDataElement commentBlockParagraph = new HamlDataElement(7, 4, true, "p", true, "A nested button link below:", false, null, null, false, null, false, null);
-        HamlDataElement commentBlockAnchor = new HamlDataElement(8, 4, true, "a", false, null, false, null, null, false, null, false, null);
-        HamlDataElement commentBlockImg = new HamlDataElement(9, 5, true, "img", false, null, false, null, null, false, null, false, null);
+        HamlDataElement commentBlockHeader = new HamlDataElement(6, 4, true, "h1", true, "Example header", true, null, null, false, null, false, null);
+        HamlDataElement commentBlockParagraph = new HamlDataElement(7, 4, true, "p", true, "A nested button link below:", true, null, null, false, null, false, null);
+        HamlDataElement commentBlockAnchor = new HamlDataElement(8, 4, true, "a", false, null, true, null, null, false, null, false, null);
+        HamlDataElement commentBlockImg = new HamlDataElement(9, 5, true, "img", false, null, true, null, null, false, null, false, null);
         HamlDataElement section = new HamlDataElement(10, 2, true, "section", false, null, false, null, null, false, null, false, null);
 
         for (int x = 0; x < 10; x++) {
