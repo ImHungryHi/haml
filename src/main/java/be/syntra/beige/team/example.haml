@@ -15,6 +15,22 @@
         %foo
           %bar
             text
+        %peanutbutterjelly
+          / This is the peanutbutterjelly element
+          I like sandwiches!
+      /
+        %p This doesn't render...
+        %div
+          %h1 Because it's commented out!
+      %p Haml comment is beneden.
+        -# This is a comment
+      %p Haml comment is boven.
+%p
+-#
+  This won't be displayed
+    Nor will this
+                   Nor will this.
+%p
         %foo
           text 1
         %bar
