@@ -63,7 +63,7 @@ public class HtmlConverterTest extends TestCase {
         commentBlock.addChild(commentBlockHeader);
         commentBlock.addChild(commentBlockParagraph);
         commentBlock.addChild(commentBlockAnchor);
-        commentBlock.addChild(commentBlockImg);
+        commentBlockAnchor.addChild(commentBlockImg);
         h1.addChild(commentBlock);
         body.addChild(h1);
         body.addChild(section);
