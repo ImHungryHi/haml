@@ -94,6 +94,9 @@ element.setChildren(children);
     private String className;
     private HashMap<String,String> attributes;
 
+    private HamlDataElement parent;
+    private ArrayList<HamlDataElement> children;
+
 
 
     /**
@@ -127,6 +130,7 @@ element.setChildren(children);
         this.escapedContent = escapedContent;
         this.hasWhiteSpaceRemoval = hasWhiteSpaceRemoval;
         this.whiteSpaceRemovalType = whiteSpaceRemovalType;
+        this.children = new ArrayList<>();
     }
 
     public HamlDataElement(int lineNumber,
@@ -158,6 +162,7 @@ element.setChildren(children);
         this.hasWhiteSpaceRemoval = hasWhiteSpaceRemoval;
         this.whiteSpaceRemovalType = whiteSpaceRemovalType;
         this.id = id;
+        this.children = new ArrayList<>();
     }
 
     public HamlDataElement(int lineNumber,
@@ -191,6 +196,7 @@ element.setChildren(children);
         this.whiteSpaceRemovalType = whiteSpaceRemovalType;
         this.id = id;
         this.className = className;
+        this.children = new ArrayList<>();
     }
 
     public HamlDataElement(int lineNumber,
@@ -226,12 +232,44 @@ element.setChildren(children);
         this.id = id;
         this.className = className;
         this.attributes = attributes;
+        this.children = new ArrayList<>();
     }
+
+
+    /**
+     * Functions
+     */
+    // This is kind of a setter, but also not really; adds a child to the above list
+    public void addChild(HamlDataElement child){
+        if (this.children == null) {
+            this.children = new ArrayList<HamlDataElement>();
+        }
+
+        this.children.add(child);
+        child.setParent(this);
+    }
+
 
     // Overrides
     //
     @Override
     public String toString() {
+
+        String strChildren = "";
+
+        if (children.size() < 1) {
+            strChildren = "None";
+        }
+        else {
+            HamlDataElement child = children.get(0);
+            strChildren = (child.isComment ? "Comment" : child.tagName);
+
+            for (int x = 1; x < children.size(); x++) {
+                child = children.get(x);
+                strChildren += ", " + (child.isComment ? "Comment" : child.tagName);
+            }
+        }
+
         return "HamlDataElement => " +
                 "lineNumber=" + lineNumber +
                 ", depth=" + depth +
@@ -248,7 +286,9 @@ element.setChildren(children);
                 ", whiteSpaceRemovalType='" + whiteSpaceRemovalType + '\'' +
                 ", id='" + id + '\'' +
                 ", className='" + className + '\'' +
-                ", attributes=" + attributes;
+                ", attributes=" + attributes +
+                ", parent=" + (parent.isComment ? "Comment" : parent.tagName) +
+                ", children=" + strChildren;
     }
 
 
@@ -317,6 +357,22 @@ element.setChildren(children);
 
     public HashMap<String, String> getAttributes() {
         return attributes;
+    }
+
+    public HamlDataElement getParent() {
+        return parent;
+    }
+
+    public ArrayList<HamlDataElement> getChildren() {
+        return children;
+    }
+
+    public HamlDataElement getChild(int id) {
+        if (children.size() < id) {
+            return null;
+        }
+
+        return children.get(id);
     }
 
 
@@ -393,5 +449,17 @@ element.setChildren(children);
 
     public void setAttributes(HashMap<String, String> attributes) {
         this.attributes = attributes;
+    }
+
+    public void setParent(HamlDataElement parent) {
+        this.parent = parent;
+
+        if (!this.parent.children.contains(this)) {
+            this.parent.addChild(this);
+        }
+    }
+
+    public void setChildren(ArrayList<HamlDataElement> children) {
+        this.children = children;
     }
 }
