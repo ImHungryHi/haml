@@ -242,7 +242,7 @@ public class HamlDataElement {
                 ", id='" + id + '\'' +
                 ", className='" + className + '\'' +
                 ", attributes=" + attributes +
-                ", parent=" + (parent.isComment ? "Comment" : parent.tagName) +
+                (parent != null ? ", parent=" + (parent.isComment ? "Comment" : parent.tagName) : "") +
                 ", children=" + strChildren;
     }
 
