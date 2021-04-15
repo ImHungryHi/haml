@@ -40,16 +40,18 @@ public class HamlConverter {
     private static int depthVanComment;
 ///s
 
+    //
     // Methods to compile HAML code to proper HamlDataElement object parameters
     //
 
-
-
-
+    // Return the linenumber in the .haml file
+    //
     public static int returnLineNumber() {
         return ++HamlLineCounter;
     }
 
+    // Return the depth of the element based on the indentation
+    //
     public static int returnDepth(String input) {
         int depth = 0;
         int pos = 0;
@@ -71,17 +73,24 @@ public class HamlConverter {
         flagComment=returnIsComment(input);
     }
 ///a
+
+    // Helper method to return first character of a haml line, ignoring the indentation
+    //
     public static char firstChar(String input) {
         String normalizedInput = input.trim();
         char ch1 = normalizedInput.charAt(0);
         return ch1;
     }
 
+    // Return true if the haml line contains a tag
+    //
     public static boolean returnIsTag(String input) {
         char ch1 = firstChar(input);
         return (ch1 == '%' || ch1 == '#' || ch1 == '.');
     }
 
+    // Return the tag name
+    //
     public static String returnTagName(String input) {
         String tagName = null;
 
@@ -99,6 +108,8 @@ public class HamlConverter {
         return tagName;
     }
 
+    // Return the id name
+    //
     public static String returnIdName(String input) {
         String id = null;
         int startPos;
@@ -123,8 +134,8 @@ public class HamlConverter {
         return id;
     }
 
-    ////////////////////    8APRIL  /////// returnHasText()- hasText
-    /////// returnTextContent()- textContent
+    // Return whether text was found in line
+    //
     public static boolean returnHasText(String input) {
         boolean hasText = false;
         if (!flagComment) {
@@ -136,6 +147,8 @@ public class HamlConverter {
         return hasText;
     }
 
+    // Return the actual text content found in the line
+    //
     public static String returnTextContent(String input) {
         String textContent = "";
         if (returnHasText(input) && !returnIsTag(input)) {
@@ -156,14 +169,9 @@ public class HamlConverter {
         }
         return textContent;
     }
-////////////////////  END OF  8APRIL  /////// returnHasText()- hasText
-    /////// returnTextContent()- textContent
 
-
-    ////////////////////    8APRIL  /////// returnIsComment
-    //                                        //returnCommentType
-    //                                        //               ----htmlComment, ----hamlComment
-    //                                        //returnCommentContent
+    // Return whether a comment was found in line
+    //
     public static boolean returnIsComment(String input) {
         boolean isComment = false;
         input = inputZeroDepthForm(input);
@@ -175,7 +183,8 @@ public class HamlConverter {
         return isComment;
     }
 
-
+    // Return the comment type found in line (htmlComment or hamlComment)
+    //
     public static String returnCommentType(String input) {
        if (returnIsComment(input)) {
            input = inputZeroDepthForm(input);
@@ -188,7 +197,8 @@ public class HamlConverter {
        return "";
     }
 
-
+    // Return the comment content
+    //
     public static String returnCommentContent(String input) {
        /* String result="";
         if (returnIsComment(input)) {
@@ -226,13 +236,9 @@ public class HamlConverter {
         }
         return "";
     }
-////////////////////  END OF  8APRIL    /////// returnIsComment
-                                        //returnCommentType
-                                        //               ----htmlComment, ----hamlComment
-                                        //returnCommentContent
 
-
-
+    // Return true if Whitespace removal symbols were found
+    //
     public static boolean returnHasWSRM(String input){
         boolean wsrm = false;
         // Todo
@@ -245,6 +251,8 @@ public class HamlConverter {
         return wsrm;
     }
 
+    // Return the type(s) of Whitespace removal symbols found
+    //
     public static String returnWsrmType(String input){
         String wsrmType = "";
         if(returnHasWSRM(input)){
@@ -254,25 +262,7 @@ public class HamlConverter {
         return wsrmType;
     }
 
-    // Todo: returnHasText method here (boolean)
-    // Return whether text was found in line
-    //
 
-    // Todo: returnTextContent method here (String)
-    // Return the actual text content found in the line
-    //
-
-    // Todo: returnIsComment method here (boolean)
-    // Return whether a comment was found in line
-    //
-
-    // Todo: returnCommentType method here (String, either 'htmlComment' or 'hamlComment')
-    // Return the commenttype found in line (htmlComment or hamlComment)
-    //
-
-    // Todo: returnCommentContent method here (String)
-    // Return the comment content
-    //
 
     // Todo: returnHasEscaping method here (boolean)
     // Return if escape symbol was found in line
@@ -289,6 +279,7 @@ public class HamlConverter {
     // Todo: returnAttributes method here (HashMap<String,String>)
     // Return attributes
     //
+
 
 
     // Convert a String to a HamlDataElement object
