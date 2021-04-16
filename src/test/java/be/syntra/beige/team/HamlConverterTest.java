@@ -30,5 +30,7 @@ public class HamlConverterTest extends TestCase {
         assertEquals(attMap2, attMap2_3Check);
         assertEquals(attMap3, attMap2_3Check);
         assertEquals(attMap4, attMap4Check);
+
+        //getAttributeString(attributes).replace(":", "");
     }
 }
