@@ -69,7 +69,7 @@ public class ReaderHaml {
         // Hardcoded read from example.haml file
         // Construct relative path + filename
         String filePath = new File("").getAbsolutePath();
-        filePath += "\\src\\main\\java\\be\\syntra\\beige\\team\\";
+        filePath = System.getProperty("user.dir") + "/src/main/java/be/syntra/beige/team/";
         String inputFileName = "example.haml";
 
         // Temporary:

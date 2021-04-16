@@ -28,8 +28,7 @@ public class Writer {
 
     // Temporary:
     // Hardcoded filepath
-    String outputFilePath = new File("").getAbsolutePath() + "\\src\\main\\java\\be\\syntra\\beige\\team\\";
-
+    String outputFilePath = System.getProperty("user.dir") + "/src/main/java/be/syntra/beige/team/";
 
     public Writer(String inputFileName, String outputFileName, ArrayList<String> htmlElements) {
         this.inputFileName = inputFileName;
