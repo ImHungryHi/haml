@@ -66,7 +66,7 @@ public class Writer {
             FileWriter fileWriter = new FileWriter(outputFilePath + outputFileName);
 
             for(String line : htmlElements){
-                fileWriter.write(line);
+                fileWriter.write(line + "\n");
             }
 
             fileWriter.close();
