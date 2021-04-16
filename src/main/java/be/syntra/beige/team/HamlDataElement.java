@@ -282,8 +282,8 @@ element.setChildren(children);
                 ", tagName='" + tagName + '\'' +
                 //", hasText=" + hasText +
                 ", textContent='" + textContent + '\'' +
-                //", isComment=" + isComment +
-                //", commentType='" + commentType + '\'' +
+                ", isComment=" + isComment +
+                ", commentType='" + commentType + '\'' +
                 //", commentContent='" + commentContent + '\'' +
                 //", hasEscaping=" + hasEscaping +
                 //", escapedContent='" + escapedContent + '\'' +
