@@ -1,11 +1,12 @@
 package be.syntra.beige.team;
 
+import java.util.ArrayList;
+
 /**
  * <h1>HamlValidation</h1>
- * HamlValidation class inherits from Exception,
- * checks the HamlData object on faulty input,
- * returns error message with affected haml input filename & lineNumber
- * On success, return true
+ * HamlValidation object contains validation data from 1 haml file:
+ * - boolean valid
+ * - arraylist of hamlErrors
  *
  *
  * @author  Team Beige
@@ -14,29 +15,86 @@ package be.syntra.beige.team;
  */
 
 public class HamlValidation {
-    private static boolean valid = true;
+    private boolean valid;
+    private ArrayList<String> hamlErrors = new ArrayList<>();
 
-    public static boolean validateHaml(HamlData hamlData){
+    /**
+     * Constructor
+     */
+    private HamlValidation(boolean valid) {
+        this.valid = valid;
+    }
 
-        // Write validation rules here
-        //
-        // -- code here --
+    /**
+     * Getters
+     */
+    public boolean isValid() {
+        return valid;
+    }
 
+    public ArrayList<String> getHamlErrors() {
+        return hamlErrors;
+    }
 
-        // Check valid var
-        // Todo
-        // Ideally HamlValidation also returns the lilne number(s) where the error occurs
-        //
-        if(valid){
-            System.out.println("\nHaml file valid. \\m/ Converting to html.\n");
-            return true;
-        }else{
-            // Todo
-            // Implement error message and linenumber
-            // Make sure reader is closed afterwards
-            // System.out.println("\nHaml file invalid. Error on linenumber X\n");
-            return false;
+    /**
+     * Methods
+     */
+    // Recursive method to loop through the children of a HamlDataElement
+    // Method is used to build an easier arraylist to apply validation on
+    //
+    public static void buildObjToValidate(HamlDataElement el, ArrayList<HamlDataElement> array){
+        if(el.getChildren() != null || el.getChildren().size() > 0){
+            for (HamlDataElement child : el.getChildren()) {
+                array.add(child);
+                buildObjToValidate(child,array);
+            }
         }
+    }
+
+    // Method that validates a HamlData object
+    // returns a HamlValidation object with validation data
+    //
+    public static HamlValidation validateHaml(HamlData hamlData){
+
+        // Initialize HamlValidation object, setting valid to true
+        HamlValidation validatedHaml = new HamlValidation(true);
+
+        // Declare original HamlDataElements arraylist
+        ArrayList<HamlDataElement> elements = hamlData.getHamlDataElements();
+
+        // Transform original arraylist to easier arraylist to apply validation on
+        //
+        ArrayList<HamlDataElement> objToValidate = new ArrayList<HamlDataElement>();
+        for(HamlDataElement el : elements){
+            objToValidate.add(el);
+            buildObjToValidate(el,objToValidate);
+        }
+
+        // Validate nesting of HamlDataElements
+        //
+        HamlDataElement currEl;
+        HamlDataElement nextEl;
+
+        for(int i = 0 ; i < objToValidate.size(); i++){
+            currEl = objToValidate.get(i);
+            nextEl = i < objToValidate.size() - 1 ? objToValidate.get(i+1) : null;
+
+            // A HamlDataElement of depth x containing a tag,
+            // cannot be followed by a HamlDataElement of the same depth x, which is not a tag or comment
+            // if error is found, change valid property to false
+            // gather linenumber and error message and store it in hamlErrors arrayList
+            if(
+                    nextEl != null && currEl.isTag() &&
+                            (currEl.getDepth() == nextEl.getDepth() && !nextEl.isTag() && !nextEl.isComment())
+            ){
+                validatedHaml.valid = false;
+                validatedHaml.hamlErrors.add("Nesting error on line " + nextEl.getLineNumber());
+            }
+        }
+
+        // Return HamlValidation object
+        //
+        return validatedHaml;
 
     }
 }
