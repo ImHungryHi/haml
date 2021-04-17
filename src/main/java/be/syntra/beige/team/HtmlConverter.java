@@ -106,16 +106,28 @@ public class HtmlConverter {
                         indents + Config.INDENTATION + commentContent.replace("\n", indents + Config.INDENTATION + "\n") + "\n" +
                         "-->";
             }
-            else{
+            //van here (kijk eens naar lijn 115)
+            else if (el.getCommentType().equals("htmlComment")) {
+                return "<!-- " + commentContent + " -->";
+                } else if (el.getCommentType().equals("hamlComment")){
+                    return null;
+                }
+            //ipv
+            /*else{
                 return "<!-- " + commentContent + " -->";
             }
-        }
+             */
 
+        }
         return null;
     }
 
     public static void convertToHtml(HamlDataElement el, Html html) {
-        if (!el.isTag()) {
+        //de lijn 128 ipv de lijn 129--> voor de lijnen in example.haml die alleen bewaren text.
+        // bijvoorbeeld 28.lijn in example.haml
+        if (!el.isTag() && !el.hasText()) {
+        //if (!el.isTag()) {
+
             String commentContent = createCommentContent(el);
 
             if (commentContent != null) {
