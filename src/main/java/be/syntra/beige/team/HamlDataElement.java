@@ -29,6 +29,46 @@ public class HamlDataElement {
 
     // Required variables
     //
+            /* CHRIS' S CODES OVER PARENT/ CHILD
+           private HamlDataElement parent;
+private ArrayList<HamlDataElement> children;
+
+// lege lijst geïnitialiseerd in iedere constructor adhv:
+//    this.children = new ArrayList<>();
+
+// Uitgewerkte methode om een child element toe te voegen, controleert of de lijst geïnitialiseerd is en voegt een HamlDataElement toe
+public void addChild(HamlDataElement child);
+
+// Getters, keert de bovenste private objecten "parent" en "children" terug:
+public HamlDataElement getParent();
+public ArrayList<HamlDataElement> getChildren();
+
+// Extra getter om een enkel child-element terug te krijgen (indien de id valide is)
+public HamlDataElement getChild(int id);
+
+// Setters, neemt een parameter en vult deze in de bovenste private objecten "parent" en "children"
+public void setParent(HamlDataElement parent);
+public void setChildren(ArrayList<HamlDataElement> children);
+
+//Een voorbeeld om deze op te vullen:
+HamlDataElement parent = new HamlDataElement();// nodige parameters
+    HamlDataElement element = new HamlDataElement();
+    HamlDataElement child1 = new HamlDataElement();
+    HamlDataElement child2 = new HamlDataElement();
+    element.setParent = parent;
+// children kunnen toegevoegd worden op 2 manieren; manier 1:
+element.addChild(child1);
+element.addChild(child2);
+
+    // manier 2:
+    ArrayList<HamlDataElement> children = new ArrayList<>();
+children.add(child1);
+children.add(child2);
+element.setChildren(children);
+
+
+             */
+
     private int lineNumber;
     private int depth;
 
@@ -56,6 +96,8 @@ public class HamlDataElement {
 
     private HamlDataElement parent;
     private ArrayList<HamlDataElement> children;
+
+
 
     /**
      *
@@ -193,6 +235,7 @@ public class HamlDataElement {
         this.children = new ArrayList<>();
     }
 
+
     /**
      * Functions
      */
@@ -206,11 +249,13 @@ public class HamlDataElement {
         child.setParent(this);
     }
 
+
     // Overrides
     //
     @Override
     public String toString() {
-        String strChildren = "";
+
+        /*String strChildren = "";
 
         if (children.size() < 1) {
             strChildren = "None";
@@ -223,27 +268,34 @@ public class HamlDataElement {
                 child = children.get(x);
                 strChildren += ", " + (child.isComment ? "Comment" : child.tagName);
             }
+        }*/
+
+        String toStringIndent = "";
+        for(int i = 0; i < this.getDepth(); i++){
+            toStringIndent += Config.INDENTATION;
         }
 
-        return "HamlDataElement => " +
+        return "\n" + toStringIndent + "HamlDataElement => " +
                 "lineNumber=" + lineNumber +
                 ", depth=" + depth +
                 ", isTag=" + isTag +
                 ", tagName='" + tagName + '\'' +
-                ", hasText=" + hasText +
+                //", hasText=" + hasText +
                 ", textContent='" + textContent + '\'' +
                 ", isComment=" + isComment +
                 ", commentType='" + commentType + '\'' +
-                ", commentContent='" + commentContent + '\'' +
-                ", hasEscaping=" + hasEscaping +
-                ", escapedContent='" + escapedContent + '\'' +
-                ", hasWhiteSpaceRemoval=" + hasWhiteSpaceRemoval +
-                ", whiteSpaceRemovalType='" + whiteSpaceRemovalType + '\'' +
+                //", commentContent='" + commentContent + '\'' +
+                //", hasEscaping=" + hasEscaping +
+                //", escapedContent='" + escapedContent + '\'' +
+                //", hasWhiteSpaceRemoval=" + hasWhiteSpaceRemoval +
+                //", whiteSpaceRemovalType='" + whiteSpaceRemovalType + '\'' +
                 ", id='" + id + '\'' +
-                ", className='" + className + '\'' +
-                ", attributes=" + attributes +
+                //", className='" + className + '\'' +
+                //", attributes=" + attributes +
                 (parent != null ? ", parent=" + (parent.isComment ? "Comment" : parent.tagName) : "") +
-                ", children=" + strChildren;
+                //", children=" + strChildren;
+                (this.children.size() > 0 ? ", children==>\n" + toStringIndent + children : "");
+
     }
 
 

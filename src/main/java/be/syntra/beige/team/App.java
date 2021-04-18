@@ -40,7 +40,8 @@ public class App {
 
         // Validate HamlData object
         //
-        if(HamlValidation.validateHaml(hd)){
+        HamlValidation validator = HamlValidation.validateHaml(hd);
+        if(validator.isValid()){
 
             // Create Html object
             Html html = new Html(hd.getInputFileName(), hd.getOutputFileName());
@@ -58,9 +59,15 @@ public class App {
             writer.writeToOutputFile();
 
         }else{
-            // Temporary:
-            // Figure out error handling and error messaging
-            System.out.println("\nHaml file invalid. Error on linenumber Y\n");
+
+            // Parse the hamlErrors arraylist of the validator object
+            //
+            System.out.println("\nErrors found in " + hd.getInputFileName() + ":");
+            for(String s : validator.getHamlErrors()){
+                System.out.println(s);
+            }
+            System.out.println("=> " + hd.getInputFileName() + " not parsed!");
+
         }
 
     }

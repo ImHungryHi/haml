@@ -65,8 +65,8 @@ public class Html {
         }
 
         for(String s : htmlElements){
-            //output += s + "\n";
-            output += s;
+            output += s + "\n";
+            //output += s;
         }
 
         return output;
