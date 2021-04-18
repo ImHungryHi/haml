@@ -314,11 +314,102 @@ public class HamlConverter {
     }
 
 
-    // Todo: returnAttributes method here (HashMap<String,String>)
-    // Return attributes
-    //
+    /**
+     * Takes haml input and parses accolade- or parenthesis-type attribute information into a key-value HashMap.
+     * @param input haml input line
+     * @return a set of key-value attributes
+     */
+    public static HashMap<String, String> returnAttributes(String input) {
+        HashMap<String, String> attributes = new HashMap<>();
+        String strAttributes = extractAttributeContent(input);
 
+        if (!strAttributes.equals("")) {
+            strAttributes = deflateAttributeString(strAttributes);  // This decreases the checks to split from below (ie uniform input)
+            String[] arrAttributes = splitAttributeString(strAttributes);
 
+            // If we've found attributes, we now expect the array to contain values like:
+            //  "key=\"value"   OR   "key=>\"value"
+            if (arrAttributes.length > 0) {
+                int idxEqualSign = -1;
+
+                for (String oneAttribute : arrAttributes) {
+                    idxEqualSign = oneAttribute.indexOf("=");
+
+                    // When the quotes are BEFORE an equals sign, something's off - which invalidates this attribute
+                    if (idxEqualSign >= 0 && idxEqualSign < oneAttribute.indexOf("\"")) {
+                        String[] keySet = new String[0];    // Can't complain about uninitialized arrays now. Can you, compiler?
+
+                        if (oneAttribute.charAt(idxEqualSign + 1) == '>') {
+                            keySet = oneAttribute.split("=>");
+                        }
+                        else {
+                            keySet = oneAttribute.split("=");
+                        }
+
+                        // Trim space at end of key and start of value (in case of " => " or " = ")
+                        if (keySet[0].charAt(keySet[0].length() - 1) == ' ') {
+                            keySet[0] = keySet[0].substring(0, keySet[0].length() - 1);
+                        }
+                        if (keySet[1].charAt(0) == ' ') {
+                            keySet[1] = keySet[1].substring(1);
+                        }
+
+                        // Finally, add the attribute to the collection - without leading or trailing spaces
+                        attributes.put(keySet[0].replace(":", "").trim(), keySet[1].replace("\"", "").trim());
+                    }
+                }
+            }
+        }
+
+        return attributes;
+    }
+
+    private static String extractAttributeContent(String input) {
+        int idxOpenAccolade = input.indexOf("{"),
+                idxCloseAccolade = input.indexOf("}"),
+                idxOpenParenthesis = input.indexOf("("),
+                idxCloseParenthesis = input.indexOf(")");
+        String strAttributes = "";
+
+        if (idxOpenAccolade >= 0 && idxCloseAccolade > idxOpenAccolade) {
+            strAttributes = input.substring(++idxOpenAccolade, idxCloseAccolade);
+        }
+        else if (idxOpenParenthesis >= 0 && idxCloseParenthesis > idxOpenParenthesis) {
+            strAttributes = input.substring(++idxOpenParenthesis, idxCloseParenthesis);
+        }
+        // else - We didn't find any, leave the attributes empty
+
+        return strAttributes;
+    }
+
+    private static String[] splitAttributeString(String input) {
+        // We'll assume 3 possible formats in typing from this deflation:
+        //  key="value",key="value"...
+        //  :key="value",:key="value"...
+        //  key="value" key="value"...
+        if (input.contains("\",")) {
+            return input.split("\",");
+        }
+        else if (input.contains(",:")) {
+            return input.split(",:");
+        }
+        else if (input.contains("\" ")) {
+            return input.split("\" ");
+        }
+
+        return new String[0];   // Skip null check/error later on
+    }
+
+    private static String deflateAttributeString(String input) {
+        input = input.replace("\" , ", "\",");
+        input = input.replace("\" ,", "\",");
+        input = input.replace("\", ", "\",");
+        input = input.replace("\" :", "\",:");
+        input = input.replace(" , :", ",:");
+        input = input.replace(", :", ",:");
+
+        return input;
+    }
 
     // Convert a String to a HamlDataElement object
     //

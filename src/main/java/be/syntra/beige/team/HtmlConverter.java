@@ -100,40 +100,47 @@ public class HtmlConverter {
         String indents = createIndentation(el);
         String commentContent = el.getCommentContent();
 
-        if (commentContent != null) {
+        if (commentContent != null && !commentContent.isEmpty()) {
             if (commentContent.contains("\n")){
                 return "<!--\n" +
                         indents + Config.INDENTATION + commentContent.replace("\n", indents + Config.INDENTATION + "\n") + "\n" +
                         "-->";
             }
-            //van here (kijk eens naar lijn 115)
-            else if (el.getCommentType().equals("htmlComment")) {
-                return "<!-- " + commentContent + " -->";
-                } else if (el.getCommentType().equals("hamlComment")){
-                    return null;
-                }
-            //ipv
-            /*else{
+            else{
                 return "<!-- " + commentContent + " -->";
             }
-             */
-
         }
+
         return null;
     }
 
-    public static void convertToHtml(HamlDataElement el, Html html) {
-        //de lijn 128 ipv de lijn 129--> voor de lijnen in example.haml die alleen bewaren text.
-        // bijvoorbeeld 28.lijn in example.haml
-        if (!el.isTag() && !el.hasText()) {
-        //if (!el.isTag()) {
+    private static void addCommentContent(HamlDataElement el, Html html) {
+        String indents = createIndentation(el);
+        String commentContent = el.getCommentContent();
 
-            String commentContent = createCommentContent(el);
+        if (el.getChildren().size() < 1) {
+            // No children, so if there's no text then there's no comment
+            html.addElement(createCommentContent(el));
+        }
+        else {
+            html.addElement(indents + "<!--");
 
-            if (commentContent != null) {
-                html.addElement(commentContent);
+            if (commentContent != null && !commentContent.isEmpty()) {
+                html.addElement(indents + Config.INDENTATION + commentContent);
             }
 
+            // There are children to this element, which means we can parse with convertToHtml until the end of the list
+            for (HamlDataElement child : el.getChildren()) {
+                convertToHtml(child, html);
+            }
+
+            html.addElement(indents + "-->");
+        }
+    }
+
+    public static void convertToHtml(HamlDataElement el, Html html) {
+        if (!el.isTag()) {
+            addCommentContent(el, html);
             return;
         }
 
