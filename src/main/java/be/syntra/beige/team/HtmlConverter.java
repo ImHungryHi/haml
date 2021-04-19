@@ -18,6 +18,10 @@ import java.util.*;
  */
 
 public class HtmlConverter {
+    // Small performance enhancement - keep the indent level in memory in case we need it again.
+    // Default indentation level 0 = ""
+    private static final ArrayList<String> INDENTS = new ArrayList<String>() {{ add(""); }};
+
     // To html methods
     //
     private static boolean isEmptyTag(HamlDataElement el) {
@@ -25,16 +29,25 @@ public class HtmlConverter {
     }
 
     private static String createIndentation(HamlDataElement el) {
-        String indent = "";
         int depth = el.getDepth();
 
-        if (depth != 0) {
-            for (int i = 1; i <= el.getDepth(); i++) {
-                indent += Config.INDENTATION;
+        if (depth > 0) {
+            // No need to recreate existing indents
+            if (INDENTS.size() > depth) {
+                return INDENTS.get(depth);
+            }
+
+            //  Size will always be 1 increment larger than the last index (which is equal to depth)
+            //  If the difference in requested depth oversteps this gap, add additional indents inbetween
+            //    eg: 2 indents of 2 spaces -> INDENTS = { "", "  ", "    " }
+            //        add depth 5: we will also add 3 and 4, followed by 5 indents
+            for (int x = INDENTS.size(); x <= depth; x++) {
+                // x - 1 will never be below 0 since we checked in the top "if"
+                INDENTS.add(INDENTS.get(x - 1) + Config.INDENTATION);
             }
         }
 
-        return indent;
+        return INDENTS.get(depth);
     }
 
     private static String createBeginTag(HamlDataElement el) {
@@ -97,8 +110,14 @@ public class HtmlConverter {
     }
 
     private static String createCommentContent(HamlDataElement el) {
+        // No haml comments allowed
+        if (el.getCommentType().toLowerCase().contains("haml")) {
+            return null;
+        }
+
         String indents = createIndentation(el);
         String commentContent = el.getCommentContent();
+        // TODO: if we replace commentContent for textContent, these will have to change here - or in getCommentContent()
 
         if (commentContent != null && !commentContent.isEmpty()) {
             if (commentContent.contains("\n")){
@@ -116,13 +135,14 @@ public class HtmlConverter {
 
     private static void addCommentContent(HamlDataElement el, Html html) {
         String indents = createIndentation(el);
-        String commentContent = el.getCommentContent();
 
         if (el.getChildren().size() < 1) {
             // No children, so if there's no text then there's no comment
             html.addElement(createCommentContent(el));
         }
         else {
+            // TODO: if we replace commentContent for textContent, these will have to change here - or in getCommentContent()
+            String commentContent = el.getCommentContent();
             html.addElement(indents + "<!--");
 
             if (commentContent != null && !commentContent.isEmpty()) {
