@@ -158,7 +158,14 @@ public class HtmlConverter {
         }
     }
 
+    // TODO: create whitespace removal function (keep \n in mind)
+
     public static void convertToHtml(HamlDataElement el, Html html) {
+        // Skip haml comments, don't even parse its children since they are also haml comments.
+        if (el.getCommentType().toLowerCase().contains("haml")) {
+            return;
+        }
+        // TODO: what about a line of text as content of an overlying tag?
         if (!el.isTag()) {
             addCommentContent(el, html);
             return;
