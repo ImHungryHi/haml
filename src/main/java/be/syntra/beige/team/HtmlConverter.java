@@ -138,7 +138,7 @@ public class HtmlConverter {
 
         if (el.getChildren().size() < 1) {
             // No children, so if there's no text then there's no comment
-            html.addElement(createCommentContent(el));
+            html.addElement(indents + createCommentContent(el));
         }
         else {
             // TODO: if we replace commentContent for textContent, these will have to change here - or in getCommentContent()
@@ -159,15 +159,26 @@ public class HtmlConverter {
     }
 
     // TODO: create whitespace removal function (keep \n in mind)
+    // TODO: create escape function
 
     public static void convertToHtml(HamlDataElement el, Html html) {
         // Skip haml comments, don't even parse its children since they are also haml comments.
         if (el.getCommentType().toLowerCase().contains("haml")) {
             return;
         }
-        // TODO: what about a line of text as content of an overlying tag?
-        if (!el.isTag()) {
+
+        if (!el.isTag() && el.isComment()) {
             addCommentContent(el, html);
+            return;
+        }
+        else if (!el.isTag() && !el.isComment()) {
+            // isText = true
+            String textIndents = createIndentation(el);
+            String textElement = el.getTextContent().replace("\n", "\n" + textIndents);
+            html.addElement(textIndents + textElement);
+
+            // technically this is not allowed to have children - but we could implement setting the children back a level
+            //  maybe something we could do in the future; for now, let's return
             return;
         }
 
