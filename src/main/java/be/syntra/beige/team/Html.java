@@ -20,14 +20,18 @@ import java.util.ArrayList;
 
 public class Html {
     /**
-     * Variables
+     * ----------------------------------
+     * ***          Variables         ***
+     * ----------------------------------
      */
     private String inputFileName; // just for console message output
     private String outputFileName;
     private ArrayList<String> htmlElements;
 
     /**
-     * Constructors
+     * ----------------------------------
+     * ***        Constructors        ***
+     * ----------------------------------
      */
     public Html(String inputFileName, String outputFileName){
         this(inputFileName);
@@ -40,10 +44,18 @@ public class Html {
     }
 
     /**
-     * Functions
+     * ----------------------------------
+     * ***         Functions          ***
+     * ----------------------------------
      */
     public void addElement(String element) {
         htmlElements.add(element);
+    }
+
+    public void addToPrevious(String element) {
+        int lastIndex = htmlElements.size() - 1;
+        String lastElement = htmlElements.get(lastIndex);
+        htmlElements.set(lastIndex, lastElement + element);
     }
 
     /**
@@ -73,7 +85,9 @@ public class Html {
     }
 
     /**
-     * Getters
+     * ----------------------------------
+     * ***          Getters           ***
+     * ----------------------------------
      */
     public String getInputFileName() {
         return inputFileName;
@@ -88,7 +102,9 @@ public class Html {
     }
 
     /**
-     * Setter
+     * ----------------------------------
+     * ***           Setters          ***
+     * ----------------------------------
      */
     public void setHtmlElements(ArrayList<String> htmlElements) {
         this.htmlElements = htmlElements;
