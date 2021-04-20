@@ -37,8 +37,8 @@ public class HamlConverter {
     private static int HamlLineCounter;
 
 ///s
-    private static boolean flagComment;
-    private static int depthVanComment;
+    //private static boolean flagComment;
+    //private static int depthVanComment;
 ///s
 
     //
@@ -81,9 +81,9 @@ public class HamlConverter {
     }
 
     //helper method for comment blok finished or not yet..
-    public static void flag(String input){
+    /*public static void flag(String input){
         flagComment=returnIsComment(input);
-    }
+    }*/
 ///a
 
     // Helper method to return first character of a haml line, ignoring the indentation
@@ -150,12 +150,17 @@ public class HamlConverter {
     //
     public static boolean returnHasText(String input) {
         boolean hasText = false;
-        if (!flagComment) {
-            if ((!returnIsTag(input) && (!returnIsComment(input)) || (returnIsTag(input) && inputZeroDepthForm(input).split(" ").length > 1))) {
-                hasText = true;
-            }
-            //return hasText;
+
+        // If haml line is not a tag and not a comment => true
+        if(!returnIsTag(input) && !returnIsComment(input)){
+            hasText = true;
         }
+        // If haml line is a tag or a comment, check if content after space
+        else if(inputZeroDepthForm(input).split(" ").length > 1)
+        {
+            hasText = true;
+        }
+
         return hasText;
     }
 
@@ -163,22 +168,24 @@ public class HamlConverter {
     //
     public static String returnTextContent(String input) {
         String textContent = "";
-        if (returnHasText(input) && !returnIsTag(input)) {
 
-            //input (zonder ruimtes van depth) is text.
-            textContent += inputZeroDepthForm(input);
-
-        } else if (returnHasText(input) && returnIsTag(input)) {
-
-            //in dit geval input heeft ruimtes;
-            //                                  - in depth
-            //                                  - in text
-            //                                  - net voor hele text
-            // text[] heeft het stukje die is tot "text" in index 0 en split form van text( word op word) in de volgende indexes.
-            String[] text = inputZeroDepthForm(input).split(" ");
-
-            textContent += input.substring((returnDepth(input) * 2) + (text[0].length()) + 1);
+        if (returnHasText(input)){
+            if(!returnIsTag(input) && !returnIsComment(input)){
+                // If not a tag and not a comment, set textContent
+                textContent = inputZeroDepthForm(input);
+            }else{
+                // If a tag, find first space and set textContent
+                if(returnIsTag(input)){
+                    int textStart = inputZeroDepthForm(input).indexOf(" ") + 1;
+                    textContent = inputZeroDepthForm(input).substring(textStart);
+                }
+                // If a htmlComment, trim haml html comment symbols '/ '
+                if(returnCommentType(input).equals("htmlComment")){
+                    textContent = inputZeroDepthForm(input).substring(2);
+                }
+            }
         }
+
         return textContent;
     }
 
@@ -192,7 +199,7 @@ public class HamlConverter {
         //if (input.startsWith("/") || input.startsWith("-#")) {
         if (input_Z_D_F.startsWith("/") || input_Z_D_F.startsWith("-#")) {
             isComment = true;
-            depthVanComment=returnDepth(input);
+            //depthVanComment=returnDepth(input);
         }
         return isComment;
     }
@@ -214,23 +221,9 @@ public class HamlConverter {
     // Return the comment content
     //
     public static String returnCommentContent(String input) {
-       /* String result="";
-        if (returnIsComment(input)) {
-            input=inputZeroDepthForm(input);
-            result="b";
-           // String naCommentCharacterEnSpace=input.substring(input.indexOf(" ",0));
-            if (input.contains("\\p{print}")) {
-                result= input.substring(input.indexOf(' ')+1);
-            }
-        }
-        return result;
-        */
+       /*
         String commentContent="";
-        /*if (flagComment){ //onceki satir halihazirda coklu yorum satiri miydi?
-            if (depthVanComment>=returnDepth(input)){
-                return "";
-            }
-        } else {*/
+
             flag(input);
             if ((flagComment && returnCommentType(input).equals("htmlComment")) && !inputZeroDepthForm(input).equals("/")){ //bu satirda yalniz "/" karakteri yoksa
                                                                                                                             //yani tek satirlik yorum ise
@@ -248,6 +241,9 @@ public class HamlConverter {
             }
         //}  -->else' in kapanisi
         return "";
+
+        */
+        return null;
     }
 
     // Return true if Whitespace removal symbols were found
@@ -430,9 +426,9 @@ public class HamlConverter {
         // Return elementType, if a tag was found
         String tagName = isTag ? returnTagName(input) : null;
         // Return whether text was found in line
-        boolean hasText = returnHasText(input);//false; // Todo: call returnHasText method here     OK
+        boolean hasText = returnHasText(input);
         // Return the actual text content found in the line
-        String textContent = returnTextContent(input);//""; // Todo: call returnTextContent method here     OK
+        String textContent = returnTextContent(input);
         // Return whether comment was found in line
         boolean isComment = returnIsComment(input);//false; // Todo: call returnIsComment method here       OK
         // Return the commenttype found in line (htmlComment or hamlComment)
