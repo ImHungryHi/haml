@@ -7,9 +7,14 @@ public class HConverterWork {
     private static String createTextContent(HamlDataElement el) { return ""; }
     private static void addCommentContent(HamlDataElement el, Html html) { }
     private static String createEndTag(HamlDataElement el) { return ""; }
+    private static String createIndentation(HamlDataElement el) { return ""; }
     // Here endeth the dummy content
 
     private static void addBeginTag(HamlDataElement el, Html html) {
+        if (!el.isTag()) {
+            return;
+        }
+
         String beginTag = createBeginTag(el);
 
         /*
@@ -24,29 +29,67 @@ public class HConverterWork {
     private static void addTagContent(HamlDataElement el, Html html) {
         String textContent = createTextContent(el);
 
-        /*
-        TODO:
-         whitespace check
-            -> parent has inner / previous sibling has outer wsrm
-                => add to previous element
-         single line check
-                => add to previous element
-         add as per usual
-         */
+        // What do we say to the god of empty lines? Not today!
+        if (textContent.equals("")) {
+            return;
+        }
+
+        HamlDataElement previousSibling = null;
+        boolean isText = false;
+
+        if (!el.isTag() && !el.isComment()) {
+            isText = true;
+
+            // Check for previous siblings
+            ArrayList<HamlDataElement> siblings = el.getParent().getChildren();
+
+            for (int x = 0; x < siblings.size(); x++) {
+                if (x > 0 && siblings.get(x).equals(el)) {
+                    previousSibling = siblings.get(x - 1);
+                }
+            }
+        }
+
+        // Normal situation for single line text. WSRM doesn't do anything different in this case.
+        if (!el.hasChildren() && !textContent.contains("\n")) {
+            html.addToPrevious(textContent);
+        }
+        // First line is no children + multi-line text + inner WSRM
+        //  Second is children + both single-/multi-line text + inner WSRM
+        //  Third is the previous sibling - if found - with outer WSRM
+        else if ((!el.hasChildren() && textContent.contains("\n") && (el.hasWhiteSpaceRemoval() && el.getWhiteSpaceRemovalType().contains("<"))) ||
+                    (el.hasChildren() && (el.hasWhiteSpaceRemoval() && el.getWhiteSpaceRemovalType().contains("<"))) ||
+                    (previousSibling != null && previousSibling.hasWhiteSpaceRemoval() && previousSibling.getWhiteSpaceRemovalType().contains(">"))) {
+            html.addToPrevious(textContent.replace("\n", "\n" + createIndentation(el)));
+        }
+        else {
+            String indents = createIndentation(el) + (!isText ? Config.INDENTATION : "");
+            html.addElement(indents + textContent.replace("\n", "\n" + indents));
+        }
     }
 
     private static void addEndTag(HamlDataElement el, Html html) {
         String endTag = createEndTag(el);
 
-        /*
-        TODO:
-         whitespace check
-            -> last child has outer wsrm
-                => add to previous element
-         single line check
-                => add to previous element
-         add as per usual
-         */
+        // Prevent the code from adding empty lines
+        if (endTag.equals("")) {
+            return;
+        }
+
+        ArrayList<HamlDataElement> children = el.getChildren();
+        HamlDataElement lastChild = children.get(children.size() - 1);
+
+        // First line checks for content within the tag that indicates a multi-line tag
+        //  The second line checks for WSRM in the last child that forces the closing tag upwards (">")
+        //  The third line checks for WSRM inside the tag itself ("<")
+        if ((!el.hasChildren() && !el.hasText() && !el.getTextContent().contains("\n")) ||
+                (el.hasChildren() && lastChild.hasWhiteSpaceRemoval() && lastChild.getWhiteSpaceRemovalType().contains(">")) ||
+                (el.hasWhiteSpaceRemoval() && el.getWhiteSpaceRemovalType().contains("<"))) {
+            html.addToPrevious(endTag);
+            return;
+        }
+
+        html.addElement(createIndentation(el) + endTag);
     }
 
     public static void convertToHtml(HamlDataElement el, Html html) {
@@ -59,9 +102,7 @@ public class HConverterWork {
             return;
         }
 
-        if (el.isTag()) {
-            addBeginTag(el, html);
-        }
+        addBeginTag(el, html);
 
         if (el.hasText() || (!el.isTag() && !el.isComment())) {
             addTagContent(el, html);
@@ -76,9 +117,7 @@ public class HConverterWork {
             }
         }
 
-        if (el.isTag()) {
-            addEndTag(el, html);
-        }
+        addEndTag(el, html);
     }
 
     /*
