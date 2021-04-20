@@ -249,6 +249,10 @@ element.setChildren(children);
         child.setParent(this);
     }
 
+    public boolean hasChildren() {
+        return this.children != null && this.children.size() > 0;
+    }
+
 
     // Overrides
     //
