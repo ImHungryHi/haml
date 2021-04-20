@@ -58,17 +58,13 @@ public class HamlConverter {
         int pos = 0;
         if (input.startsWith(Config.INDENTATION)) {
 
-            //zijn deze goed (kijk 66. line)
-            while ((pos + Config.LENGTH_INDENTATION < input.length()) && input.substring(pos, pos + Config.LENGTH_INDENTATION).equals(Config.INDENTATION)) {
+            while (
+                    (pos + Config.LENGTH_INDENTATION < input.length()) &&
+                    input.substring(pos, pos + Config.LENGTH_INDENTATION).equals(Config.INDENTATION)
+            ) {
                 depth++;
                 pos += Config.LENGTH_INDENTATION;
             }
-            //ipv beneden
-            /*while ((pos + 2 < input.length()) && input.substring(pos, pos + 2).equals(Config.INDENTATION)) {
-                depth++;
-                pos += 2;
-            }
-             */
         }
         return depth;
     }
@@ -77,7 +73,7 @@ public class HamlConverter {
     // Helper method to return a haml line, ignoring the indentation
     //
     public static String inputZeroDepthForm(String input){
-        return input.substring(returnDepth(input)*2);
+        return input.substring(returnDepth(input) * Config.LENGTH_INDENTATION);
     }
 
     //helper method for comment blok finished or not yet..
@@ -193,14 +189,12 @@ public class HamlConverter {
     //
     public static boolean returnIsComment(String input) {
         boolean isComment = false;
-        //input = inputZeroDepthForm(input);
         String input_Z_D_F = inputZeroDepthForm(input);
 
-        //if (input.startsWith("/") || input.startsWith("-#")) {
         if (input_Z_D_F.startsWith("/") || input_Z_D_F.startsWith("-#")) {
             isComment = true;
-            //depthVanComment=returnDepth(input);
         }
+
         return isComment;
     }
 
@@ -221,6 +215,8 @@ public class HamlConverter {
     // Return the comment content
     //
     public static String returnCommentContent(String input) {
+        // MARKED AS OBSOLETE, returnTextContent method covers this functionality
+        //
        /*
         String commentContent="";
 
@@ -293,15 +289,19 @@ public class HamlConverter {
         String currChar = "";
 
         // If the haml line represents a tag and . occurs, get the first occurrence of . and retrieve the className
-        if (returnIsTag(input) && input.contains(".")) {
+        if ((returnIsTag(input) && input.contains(".")) && !extractAttributeContent(input).contains(".") ){
             // get start position of class name
             startPos = input.indexOf(".") + 1;
             // get end position of class name, can end by a ' ','#','(','<','>' or end of line (returns -1 in this case)
             for (int i = startPos; i < input.length(); i++) {
                 currChar = input.substring(i, i + 1);
+
                 if (currChar.equals(" ") || currChar.equals("#") || currChar.equals("(") || currChar.equals("<") || currChar.equals(">")) {
                     endPos = i;
                     break;
+                }
+                if (currChar.equals(".")){
+                    input= input.replace(currChar," ");
                 }
             }
             className = (endPos != -1) ? input.substring(startPos, endPos) : input.substring(startPos);
@@ -434,7 +434,7 @@ public class HamlConverter {
         // Return the commenttype found in line (htmlComment or hamlComment)
         String commentType = returnCommentType(input); // Todo: call returnCommentType method here      OK
         // Return the comment content
-        String commentContent = returnCommentContent(input); //""; // Todo: call returnCommentContent method here       OK
+        String commentContent = returnCommentContent(input); //""; // OBSOLETE
         // Return if escape symbol was found in line
         boolean hasEscaping = false; // Todo: call returnHasEscaping method here
         // Return escaped content found in line
@@ -450,7 +450,7 @@ public class HamlConverter {
         // Return idName
         String id = returnIdName(input);
         // Return classNames
-        String className = returnClassName(input); //""; // Todo: call returnClassNames method here
+        String className = returnClassName(input);
         // Return attributes
         HashMap<String,String> attributes = null; // Todo: call returnAttributes method here
 
