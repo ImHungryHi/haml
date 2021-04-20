@@ -1,10 +1,12 @@
 package be.syntra.beige.team;
 
+import org.junit.Test;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
 
 public class HtmlConverterTest extends TestCase {
+    @Test
     public void testConvertToHtml() {
         HamlData hd = new HamlData("testinput.haml", "testoutput.html");
         Html html = new Html(hd.getInputFileName(), hd.getOutputFileName());
@@ -16,6 +18,7 @@ public class HtmlConverterTest extends TestCase {
         }
     }
 
+    @Test
     private ArrayList<HamlDataElement> getTestHamlElements() {
         ArrayList<HamlDataElement> elements = new ArrayList<>();
 
@@ -83,5 +86,82 @@ public class HtmlConverterTest extends TestCase {
         elements.add(commentBlockImg);
 
         return elements;
+    }
+
+    @Test
+    public void testWhitespaces() {
+        final HamlDataElement imgA1 = new HamlDataElement(1, 0, true, "img", false, null, false, null, null, false, null, false, null);
+        final HamlDataElement imgA2 = new HamlDataElement(2, 0, true, "img", false, null, false, null, null, false, null, true, ">");
+        final HamlDataElement imgA3 = new HamlDataElement(3, 0, true, "img", false, null, false, null, null, false, null, false, null);
+
+        final HamlDataElement divB = new HamlDataElement(1, 0, true, "div", false, null, false, null, null, false, null, true, "<");
+        final HamlDataElement pB = new HamlDataElement(2, 1, true, "p", false, null, false, null, null, false, null, false, null);
+        final HamlDataElement txtB = new HamlDataElement(3, 2, false, null, true, "Some text", false, null, null, false, null, false, null);
+        pB.addChild(txtB);
+        divB.addChild(pB);
+
+        final HamlDataElement pC = new HamlDataElement(1, 0, true, "img", true, "Foo\nBar", false, null, null, false, null, true, "<");
+
+        final HamlDataElement imgD1 = new HamlDataElement(1, 0, true, "img", false, null, false, null, null, false, null, false, null);
+        final HamlDataElement preD = new HamlDataElement(2, 0, true, "pre", false, null, false, null, null, false, null, true, "><");
+        final HamlDataElement txtD1 = new HamlDataElement(3, 1, false, null, true, "foo", false, null, null, false, null, false, null);
+        final HamlDataElement txtD2 = new HamlDataElement(4, 1, false, null, true, "bar", false, null, null, false, null, false, null);
+        final HamlDataElement imgD2 = new HamlDataElement(5, 0, true, "img", false, null, false, null, null, false, null, false, null);
+        preD.addChild(txtD1);
+        preD.addChild(txtD2);
+
+        ArrayList<HamlDataElement> elementsA = new ArrayList<HamlDataElement>() {{
+            add(imgA1);
+            add(imgA2);
+            add(imgA3);
+        }};
+        ArrayList<HamlDataElement> elementsB = new ArrayList<HamlDataElement>() {{
+            add(divB);
+            add(pB);
+            add(txtB);
+        }};
+        ArrayList<HamlDataElement> elementsC = new ArrayList<HamlDataElement>() {{
+            add(pC);
+        }};
+        ArrayList<HamlDataElement> elementsD = new ArrayList<HamlDataElement>() {{
+            add(imgD1);
+            add(preD);
+            add(txtD1);
+            add(txtD2);
+            add(imgD2);
+        }};
+
+        HamlData hd = new HamlData("testinput.haml", "testoutput.html");
+        Html html = new Html(hd.getInputFileName(), hd.getOutputFileName());
+        hd.hamlDataElements = elementsA;
+        HtmlConverter.convertToHtml(hd.getHamlDataElements(), html);
+
+        for (String line : html.getHtmlElements()) {
+            System.out.println(line);
+        }
+
+        html = new Html(hd.getInputFileName(), hd.getOutputFileName());
+        hd.hamlDataElements = elementsB;
+        HtmlConverter.convertToHtml(hd.getHamlDataElements(), html);
+
+        for (String line : html.getHtmlElements()) {
+            System.out.println(line);
+        }
+
+        html = new Html(hd.getInputFileName(), hd.getOutputFileName());
+        hd.hamlDataElements = elementsC;
+        HtmlConverter.convertToHtml(hd.getHamlDataElements(), html);
+
+        for (String line : html.getHtmlElements()) {
+            System.out.println(line);
+        }
+
+        html = new Html(hd.getInputFileName(), hd.getOutputFileName());
+        hd.hamlDataElements = elementsD;
+        HtmlConverter.convertToHtml(hd.getHamlDataElements(), html);
+
+        for (String line : html.getHtmlElements()) {
+            System.out.println(line);
+        }
     }
 }
