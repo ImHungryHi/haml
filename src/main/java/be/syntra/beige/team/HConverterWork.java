@@ -11,19 +11,34 @@ public class HConverterWork {
     // Here endeth the dummy content
 
     private static void addBeginTag(HamlDataElement el, Html html) {
-        if (!el.isTag()) {
+        String beginTag = createBeginTag(el);
+
+        if (beginTag.equals("")) {
             return;
         }
 
-        String beginTag = createBeginTag(el);
+        HamlDataElement parent = el.getParent();
+        HamlDataElement previousSibling = null;
 
-        /*
-        TODO:
-         whitespace check
-            -> parent has inner / previous sibling has outer wsrm
-                => add to previous element
-         add as per usual
-         */
+        if (parent != null) {
+            ArrayList<HamlDataElement> siblings = el.getParent().getChildren();
+
+            for (int x = 0; x < siblings.size(); x++) {
+                if (x > 0 && siblings.get(x).equals(el)) {
+                    previousSibling = siblings.get(x - 1);
+                }
+            }
+        }
+
+        // First line checks for parent WSRM
+        //  Second line checks for previous sibling WSRM
+        if (parent != null && parent.hasWhiteSpaceRemoval() && parent.getWhiteSpaceRemovalType().contains("<") ||
+            previousSibling != null && previousSibling.hasWhiteSpaceRemoval() && previousSibling.getWhiteSpaceRemovalType().contains(">")) {
+            html.addToPrevious(beginTag);
+        }
+        else {
+            html.addElement(createIndentation(el) + beginTag);
+        }
     }
 
     private static void addTagContent(HamlDataElement el, Html html) {
@@ -40,12 +55,14 @@ public class HConverterWork {
         if (!el.isTag() && !el.isComment()) {
             isText = true;
 
-            // Check for previous siblings
-            ArrayList<HamlDataElement> siblings = el.getParent().getChildren();
+            if (el.getParent() != null) {
+                // Check for previous siblings
+                ArrayList<HamlDataElement> siblings = el.getParent().getChildren();
 
-            for (int x = 0; x < siblings.size(); x++) {
-                if (x > 0 && siblings.get(x).equals(el)) {
-                    previousSibling = siblings.get(x - 1);
+                for (int x = 0; x < siblings.size(); x++) {
+                    if (x > 0 && siblings.get(x).equals(el)) {
+                        previousSibling = siblings.get(x - 1);
+                    }
                 }
             }
         }
