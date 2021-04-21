@@ -36,11 +36,6 @@ import java.util.HashMap;
 public class HamlConverter {
     private static int HamlLineCounter;
 
-///s
-    //private static boolean flagComment;
-    //private static int depthVanComment;
-///s
-
     //
     // Methods to compile HAML code to proper HamlDataElement object parameters
     //
@@ -69,18 +64,11 @@ public class HamlConverter {
         return depth;
     }
 
-///a
     // Helper method to return a haml line, ignoring the indentation
     //
     public static String inputZeroDepthForm(String input){
         return input.substring(returnDepth(input) * Config.LENGTH_INDENTATION);
     }
-
-    //helper method for comment blok finished or not yet..
-    /*public static void flag(String input){
-        flagComment=returnIsComment(input);
-    }*/
-///a
 
     // Helper method to return first character of a haml line, ignoring the indentation
     //
@@ -217,28 +205,7 @@ public class HamlConverter {
     public static String returnCommentContent(String input) {
         // MARKED AS OBSOLETE, returnTextContent method covers this functionality
         //
-       /*
-        String commentContent="";
 
-            flag(input);
-            if ((flagComment && returnCommentType(input).equals("htmlComment")) && !inputZeroDepthForm(input).equals("/")){ //bu satirda yalniz "/" karakteri yoksa
-                                                                                                                            //yani tek satirlik yorum ise
-                flagComment=false;
-                String[] comment = inputZeroDepthForm(input).split(" ");
-                commentContent += inputZeroDepthForm(input).substring(comment[0].length()+1);
-                return commentContent;
-            } else if ((flagComment && returnCommentType(input).equals("htmlComment")) && inputZeroDepthForm(input).equals("/")){//çok satirli yorum basliyor
-                if (depthVanComment<returnDepth(input)){
-                    return input; //OLMAZ!!!! Normal islem yapmali. baska bir flag gerekebilir.
-                } else{
-
-                }
-                return "";
-            }
-        //}  -->else' in kapanisi
-        return "";
-
-        */
         return null;
     }
 
@@ -277,10 +244,8 @@ public class HamlConverter {
     // Return escaped content found in line
     //
 
-    // Todo: returnClassNames method here (String)
     // Return classNames
     //
-    // Still needs improving: 1.probleem: ".class1.class2"; 2. probleem:"a.jpg" .....
     public static String returnClassName(String input) {
         String className = null;
         int startPos;
@@ -430,15 +395,15 @@ public class HamlConverter {
         // Return the actual text content found in the line
         String textContent = returnTextContent(input);
         // Return whether comment was found in line
-        boolean isComment = returnIsComment(input);//false; // Todo: call returnIsComment method here       OK
+        boolean isComment = returnIsComment(input);
         // Return the commenttype found in line (htmlComment or hamlComment)
-        String commentType = returnCommentType(input); // Todo: call returnCommentType method here      OK
+        String commentType = returnCommentType(input);
         // Return the comment content
         String commentContent = returnCommentContent(input); //""; // OBSOLETE
         // Return if escape symbol was found in line
-        boolean hasEscaping = false; // Todo: call returnHasEscaping method here
+        boolean hasEscaping = false; // OBSOLETE call returnHasEscaping method here
         // Return escaped content found in line
-        String escapedContent = ""; // Todo: call returnEscapedContent method here
+        String escapedContent = "";  // OBSOLETE call returnEscapedContent method here
         // Return if element has a white-space-removal symbol
         boolean hasWhiteSpaceRemoval = returnHasWSRM(input);
         // Return what white-space-removal symbols
@@ -513,14 +478,6 @@ public class HamlConverter {
                 // Add the parent to the parents list
                 if(parentEl == null){ parents.add(currEl); }
 
-                    // System.out.print(currEl.getLineNumber() + " " + currEl.getDepth() + " I'm same level");
-
-                    /*if(currEl.getDepth() != 0){
-                        System.out.println("=> my parent is on line " + parents.get(parents.size()-1).getLineNumber());
-                    }else{
-                        System.out.print("\n");
-                    }*/
-
                 // If currEl.getDepth() == 0 => Add element to root level of nestedElements
                 // Else => It needs to be added to its parent
                 if(currEl.getDepth() == 0){
@@ -529,18 +486,14 @@ public class HamlConverter {
                     parents.get(parents.size()-1).addChild(currEl);
                 }
 
-
-
             }
 
             if (currEl.getDepth() == currDepth + 1) {
-                    // System.out.print(currEl.getLineNumber() + " " + currEl.getDepth() + " I'm level deeper");
 
                 // The parent element is the previous hamlDataElement
                 parentEl = originalElements.get(i-1);
                 // Add it to the parents list
                 parents.add(parentEl);
-                    //System.out.println("=> my parent is on line " + parentEl.getLineNumber());
 
                 // Add current element as a child to its parent
                 parentEl.addChild(currEl);
@@ -552,17 +505,11 @@ public class HamlConverter {
             if (currEl.getDepth() < currDepth) {
                 // check how many levels the current element went up
                 depthChange = parents.size() - currEl.getDepth();
-                    //System.out.println(depthChange);
 
                 // Remove the deeper elements from parents list
                 for(int j = parents.size(); j > currEl.getDepth(); j--){
                     parents.remove(j-1);
                 }
-
-                    // System.out.print(currEl.getLineNumber() + " " + currEl.getDepth() + " I'm level higher");
-                    /* System.out.println("=> my parent is on line " +
-                            parents.get(parents.size()-1).getLineNumber()
-                    ); */
 
                 // Add the current element to its parent
                 parents.get(parents.size()-1).addChild(currEl);
@@ -573,7 +520,7 @@ public class HamlConverter {
 
         }
 
-        hamlData.hamlDataElements = nestedElements; //null;
+        hamlData.hamlDataElements = nestedElements;
         return hamlData;
     }
 
