@@ -117,10 +117,10 @@ public class HamlConverter {
         if (returnIsTag(input) && input.contains("#")) {
             // get start position of id name
             startPos = input.indexOf("#") + 1;
-            // get end position of id name, can end by a ' ','.','(','<','>' or end of line (returns -1 in this case)
+            // get end position of id name, can end by a ' ','.','(','<','>','{' or end of line (returns -1 in this case)
             for (int i = startPos; i < input.length(); i++) {
                 currChar = input.substring(i, i + 1);
-                if (currChar.equals(" ") || currChar.equals(".") || currChar.equals("(") || currChar.equals("<") || currChar.equals(">")) {
+                if (currChar.equals(" ") || currChar.equals(".") || currChar.equals("(") || currChar.equals("<") || currChar.equals(">") || currChar.equals("{")) {
                     endPos = i;
                     break;
                 }
