@@ -179,10 +179,6 @@ public class HtmlConverter {
                 hasInnerWSRM = el.hasWhiteSpaceRemoval() && el.getWhiteSpaceRemovalType().contains("<"),
                 siblingHasOuterWSRM = previousSibling != null && previousSibling.hasWhiteSpaceRemoval() && previousSibling.getWhiteSpaceRemovalType().contains(">");
 
-        if ((el.hasText() || isText) && textContent.contains("header")) {
-            boolean stophere = true;
-        }
-
         // Normal situation for single line text. WSRM doesn't do anything different in this case.
         if (!hasChildren && el.isTag() && !hasNewLine ||
             isText && siblings != null && siblings.size() > 1 && previousSibling == null) {
@@ -305,6 +301,7 @@ public class HtmlConverter {
         }
 
         if (output.charAt(0) == '\\') {
+            // TODO: HTML Escaping from here
             return output.substring(1);
         }
 
