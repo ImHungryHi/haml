@@ -135,12 +135,23 @@ public class HamlConverter {
     public static boolean returnHasText(String input) {
         boolean hasText = false;
 
+        // Trim indentation from input
+        String str = inputZeroDepthForm(input);
+        // Check for space after first ) or }
+        int endPosAttrSymb1 = str.indexOf(')');
+        int endPosAttrSymb2 = str.indexOf('}');
+        int startPosSearch = Math.max(endPosAttrSymb1,endPosAttrSymb2);
+        // Trim non-text related from input
+        if(startPosSearch > 0){
+            str = str.substring(startPosSearch);
+        }
+
         // If haml line is not a tag and not a comment => true
         if(!returnIsTag(input) && !returnIsComment(input)){
             hasText = true;
         }
         // If haml line is a tag or a comment, check if content after space
-        else if(inputZeroDepthForm(input).split(" ").length > 1)
+        else if(str.split(" ").length > 1)
         {
             hasText = true;
         }

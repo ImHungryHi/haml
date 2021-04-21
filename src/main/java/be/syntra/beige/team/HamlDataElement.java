@@ -280,7 +280,7 @@ element.setChildren(children);
                 ", depth=" + depth +
                 ", isTag=" + isTag +
                 ", tagName='" + tagName + '\'' +
-                //", hasText=" + hasText +
+                ", hasText=" + hasText +
                 ", textContent='" + textContent + '\'' +
                 ", isComment=" + isComment +
                 ", commentType='" + commentType + '\'' +
