@@ -17,8 +17,6 @@ import java.util.*;
  * @since   2021-03-24
  */
 
-// TODO: create escape function (check for "\\" at the start and escape into html entities)
-
 public class HtmlConverter {
     // Small performance enhancement - keep the indent level in memory in case we need it again.
     // Default indentation level 0 = ""
@@ -304,6 +302,10 @@ public class HtmlConverter {
             else {
                 output += textContent;
             }
+        }
+
+        if (output.charAt(0) == '\\') {
+            return output.substring(1);
         }
 
         return output;
