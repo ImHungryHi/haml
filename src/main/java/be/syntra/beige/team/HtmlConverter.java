@@ -17,13 +17,13 @@ import java.util.*;
  * @since   2021-03-24
  */
 
-// TODO: create whitespace removal function (keep \n in mind)
 // TODO: create escape function (check for "\\" at the start and escape into html entities)
 
 public class HtmlConverter {
     // Small performance enhancement - keep the indent level in memory in case we need it again.
     // Default indentation level 0 = ""
     private static final ArrayList<String> INDENTS = new ArrayList<String>() {{ add(""); }};
+    private static boolean triggerNextWSRM = false;
 
     /**
      * ----------------------------------
@@ -131,9 +131,18 @@ public class HtmlConverter {
 
         // First line checks for parent WSRM
         //  Second line checks for previous sibling WSRM
+        //  Third line is a special case - multiple depth 0 elements with WSRM
         if (parent != null && parent.hasWhiteSpaceRemoval() && parent.getWhiteSpaceRemovalType().contains("<") ||
-                previousSibling != null && previousSibling.hasWhiteSpaceRemoval() && previousSibling.getWhiteSpaceRemovalType().contains(">")) {
+                previousSibling != null && previousSibling.hasWhiteSpaceRemoval() && previousSibling.getWhiteSpaceRemovalType().contains(">") ||
+                html.getHtmlElements().size() > 0 && el.hasWhiteSpaceRemoval() && el.getWhiteSpaceRemovalType().contains(">") || triggerNextWSRM) {
             html.addToPrevious(beginTag);
+
+            if (html.getHtmlElements().size() > 0 && el.hasWhiteSpaceRemoval() && el.getWhiteSpaceRemovalType().contains(">")) {
+                triggerNextWSRM = true;
+            }
+            else if (triggerNextWSRM) {
+                triggerNextWSRM = false;
+            }
         }
         else {
             html.addElement(createIndentation(el) + beginTag);
@@ -148,6 +157,7 @@ public class HtmlConverter {
             return;
         }
 
+        ArrayList<HamlDataElement> siblings = null;
         HamlDataElement previousSibling = null;
         boolean isText = false;
 
@@ -156,7 +166,7 @@ public class HtmlConverter {
 
             if (el.getParent() != null) {
                 // Check for previous siblings
-                ArrayList<HamlDataElement> siblings = el.getParent().getChildren();
+                siblings = el.getParent().getChildren();
 
                 for (int x = 0; x < siblings.size(); x++) {
                     if (x > 0 && siblings.get(x).equals(el)) {
@@ -166,16 +176,26 @@ public class HtmlConverter {
             }
         }
 
+        boolean hasChildren = el.hasChildren(),
+                hasNewLine = textContent.contains("\n"),
+                hasInnerWSRM = el.hasWhiteSpaceRemoval() && el.getWhiteSpaceRemovalType().contains("<"),
+                siblingHasOuterWSRM = previousSibling != null && previousSibling.hasWhiteSpaceRemoval() && previousSibling.getWhiteSpaceRemovalType().contains(">");
+
+        if ((el.hasText() || isText) && textContent.contains("header")) {
+            boolean stophere = true;
+        }
+
         // Normal situation for single line text. WSRM doesn't do anything different in this case.
-        if (!el.hasChildren() && !textContent.contains("\n")) {
+        if (!hasChildren && el.isTag() && !hasNewLine ||
+            isText && siblings != null && siblings.size() > 1 && previousSibling == null) {
             html.addToPrevious(textContent);
         }
         // First line is no children + multi-line text + inner WSRM
         //  Second is children + both single-/multi-line text + inner WSRM
         //  Third is the previous sibling - if found - with outer WSRM
-        else if ((!el.hasChildren() && textContent.contains("\n") && (el.hasWhiteSpaceRemoval() && el.getWhiteSpaceRemovalType().contains("<"))) ||
-                (el.hasChildren() && (el.hasWhiteSpaceRemoval() && el.getWhiteSpaceRemovalType().contains("<"))) ||
-                (previousSibling != null && previousSibling.hasWhiteSpaceRemoval() && previousSibling.getWhiteSpaceRemovalType().contains(">"))) {
+        else if ((!hasChildren && hasNewLine && hasInnerWSRM) ||
+                (el.hasChildren() && hasInnerWSRM) ||
+                siblingHasOuterWSRM) {
             html.addToPrevious(textContent.replace("\n", "\n" + createIndentation(el)));
         }
         else {
@@ -207,7 +227,7 @@ public class HtmlConverter {
         // First line checks for content within the tag that indicates a multi-line text
         //  The second line checks for WSRM in the last child that forces the closing tag upwards (">")
         //  The third line checks for WSRM inside the tag itself ("<")
-        if ((!hasChildren && el.hasText() && !el.getTextContent().contains("\n")) ||
+        if ((!hasChildren && el.isTag() && el.hasText() && !el.getTextContent().contains("\n")) ||
                 (hasChildren && childHasWSRM && childHasOuterWSRM) ||
                 hasInnerWSRM) {
             html.addToPrevious(endTag);
@@ -315,11 +335,16 @@ public class HtmlConverter {
 
     private static String createIndentation(HamlDataElement el) {
         int depth = el.getDepth();
+        int countWSRM = countAncestralWSRM(el);
+
+        if (countWSRM == 1 && el.hasWhiteSpaceRemoval()) {
+            countWSRM--;
+        }
 
         if (depth > 0) {
             // No need to recreate existing indents
             if (INDENTS.size() > depth) {
-                return INDENTS.get(depth);
+                return INDENTS.get(depth - Math.min(countWSRM, depth));
             }
 
             //  Size will always be 1 increment larger than the last index (which is equal to depth)
@@ -332,7 +357,7 @@ public class HtmlConverter {
             }
         }
 
-        return INDENTS.get(depth);
+        return INDENTS.get(depth - Math.min(countWSRM, depth));
     }
 
     /**
@@ -340,6 +365,14 @@ public class HtmlConverter {
      * ***      Helper functions      ***
      * ----------------------------------
      */
+
+    private static int countAncestralWSRM(HamlDataElement el) {
+        if (el.getParent() == null) {
+            return el.hasWhiteSpaceRemoval() ? 1 : 0;
+        }
+
+        return countAncestralWSRM(el.getParent()) + (el.hasWhiteSpaceRemoval() ? 1 : 0);
+    }
 
     private static boolean isEmptyTag(HamlDataElement el) {
         return Config.EMPTY_TAGS.contains(el.getTagName());
