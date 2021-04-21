@@ -289,9 +289,9 @@ element.setChildren(children);
                 //", escapedContent='" + escapedContent + '\'' +
                 //", hasWhiteSpaceRemoval=" + hasWhiteSpaceRemoval +
                 //", whiteSpaceRemovalType='" + whiteSpaceRemovalType + '\'' +
-                ", id='" + id + '\'' +
+                //", id='" + id + '\'' +
                 //", className='" + className + '\'' +
-                //", attributes=" + attributes +
+                ", attributes=" + attributes +
                 (parent != null ? ", parent=" + (parent.isComment ? "Comment" : parent.tagName) : "") +
                 //", children=" + strChildren;
                 (this.children.size() > 0 ? ", children==>\n" + toStringIndent + children : "");

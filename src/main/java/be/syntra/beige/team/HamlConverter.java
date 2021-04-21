@@ -236,11 +236,11 @@ public class HamlConverter {
 
 
 
-    // Todo: returnHasEscaping method here (boolean)
+    // OBSOLETE returnHasEscaping method here (boolean)
     // Return if escape symbol was found in line
     //
 
-    // Todo: returnEscapedContent method here (String)
+    // OBSOLETE returnEscapedContent method here (String)
     // Return escaped content found in line
     //
 
@@ -319,8 +319,22 @@ public class HamlConverter {
                         attributes.put(keySet[0].replace(":", "").trim(), keySet[1].replace("\"", "").trim());
                     }
                 }
+            }else{
+                // Retrieve Strings key & value for a single attribute and put in HashMap attributes
+                //
+                String[] attr = strAttributes.split("=");
+                String key = attr[0];
+                String value = attr[1];
+                attributes.put(key,value.replace("\"",""));
             }
         }
+
+        /*
+        System.out.println("----");
+        for (HashMap.Entry<String, String> entry : attributes.entrySet()) {
+            System.out.println(entry.getKey() + "|" + entry.getValue());
+        }
+         */
 
         return attributes;
     }
@@ -417,7 +431,7 @@ public class HamlConverter {
         // Return classNames
         String className = returnClassName(input);
         // Return attributes
-        HashMap<String,String> attributes = null; // Todo: call returnAttributes method here
+        HashMap<String,String> attributes = returnAttributes(input);
 
 
 
@@ -445,11 +459,9 @@ public class HamlConverter {
         // Set id
         if(id != null){ el.setId(id); }
         // Set classes
-        // Todo: use setter method 'setClassName'
         if(className != null){ el.setClassName(className); }
         // Set attributes
-        // Todo: use setter method 'setAttributes'
-
+        el.setAttributes(attributes);
 
 
         return el;
