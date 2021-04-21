@@ -36,11 +36,6 @@ import java.util.HashMap;
 public class HamlConverter {
     private static int HamlLineCounter;
 
-///s
-    private static boolean flagComment;
-    private static int depthVanComment;
-///s
-
     //
     // Methods to compile HAML code to proper HamlDataElement object parameters
     //
@@ -58,33 +53,22 @@ public class HamlConverter {
         int pos = 0;
         if (input.startsWith(Config.INDENTATION)) {
 
-            //zijn deze goed (kijk 66. line)
-            while ((pos + Config.LENGTH_INDENTATION < input.length()) && input.substring(pos, pos + Config.LENGTH_INDENTATION).equals(Config.INDENTATION)) {
+            while (
+                    (pos + Config.LENGTH_INDENTATION < input.length()) &&
+                    input.substring(pos, pos + Config.LENGTH_INDENTATION).equals(Config.INDENTATION)
+            ) {
                 depth++;
                 pos += Config.LENGTH_INDENTATION;
             }
-            //ipv beneden
-            /*while ((pos + 2 < input.length()) && input.substring(pos, pos + 2).equals(Config.INDENTATION)) {
-                depth++;
-                pos += 2;
-            }
-             */
         }
         return depth;
     }
 
-///a
     // Helper method to return a haml line, ignoring the indentation
     //
     public static String inputZeroDepthForm(String input){
-        return input.substring(returnDepth(input)*2);
+        return input.substring(returnDepth(input) * Config.LENGTH_INDENTATION);
     }
-
-    //helper method for comment blok finished or not yet..
-    public static void flag(String input){
-        flagComment=returnIsComment(input);
-    }
-///a
 
     // Helper method to return first character of a haml line, ignoring the indentation
     //
@@ -150,12 +134,17 @@ public class HamlConverter {
     //
     public static boolean returnHasText(String input) {
         boolean hasText = false;
-        if (!flagComment) {
-            if ((!returnIsTag(input) && (!returnIsComment(input)) || (returnIsTag(input) && inputZeroDepthForm(input).split(" ").length > 1))) {
-                hasText = true;
-            }
-            //return hasText;
+
+        // If haml line is not a tag and not a comment => true
+        if(!returnIsTag(input) && !returnIsComment(input)){
+            hasText = true;
         }
+        // If haml line is a tag or a comment, check if content after space
+        else if(inputZeroDepthForm(input).split(" ").length > 1)
+        {
+            hasText = true;
+        }
+
         return hasText;
     }
 
@@ -163,22 +152,24 @@ public class HamlConverter {
     //
     public static String returnTextContent(String input) {
         String textContent = "";
-        if (returnHasText(input) && !returnIsTag(input)) {
 
-            //input (zonder ruimtes van depth) is text.
-            textContent += inputZeroDepthForm(input);
-
-        } else if (returnHasText(input) && returnIsTag(input)) {
-
-            //in dit geval input heeft ruimtes;
-            //                                  - in depth
-            //                                  - in text
-            //                                  - net voor hele text
-            // text[] heeft het stukje die is tot "text" in index 0 en split form van text( word op word) in de volgende indexes.
-            String[] text = inputZeroDepthForm(input).split(" ");
-
-            textContent += input.substring((returnDepth(input) * 2) + (text[0].length()) + 1);
+        if (returnHasText(input)){
+            if(!returnIsTag(input) && !returnIsComment(input)){
+                // If not a tag and not a comment, set textContent
+                textContent = inputZeroDepthForm(input);
+            }else{
+                // If a tag, find first space and set textContent
+                if(returnIsTag(input)){
+                    int textStart = inputZeroDepthForm(input).indexOf(" ") + 1;
+                    textContent = inputZeroDepthForm(input).substring(textStart);
+                }
+                // If a htmlComment, trim haml html comment symbols '/ '
+                if(returnCommentType(input).equals("htmlComment")){
+                    textContent = inputZeroDepthForm(input).substring(2);
+                }
+            }
         }
+
         return textContent;
     }
 
@@ -186,14 +177,12 @@ public class HamlConverter {
     //
     public static boolean returnIsComment(String input) {
         boolean isComment = false;
-        //input = inputZeroDepthForm(input);
         String input_Z_D_F = inputZeroDepthForm(input);
 
-        //if (input.startsWith("/") || input.startsWith("-#")) {
         if (input_Z_D_F.startsWith("/") || input_Z_D_F.startsWith("-#")) {
             isComment = true;
-            depthVanComment=returnDepth(input);
         }
+
         return isComment;
     }
 
@@ -214,40 +203,10 @@ public class HamlConverter {
     // Return the comment content
     //
     public static String returnCommentContent(String input) {
-       /* String result="";
-        if (returnIsComment(input)) {
-            input=inputZeroDepthForm(input);
-            result="b";
-           // String naCommentCharacterEnSpace=input.substring(input.indexOf(" ",0));
-            if (input.contains("\\p{print}")) {
-                result= input.substring(input.indexOf(' ')+1);
-            }
-        }
-        return result;
-        */
-        String commentContent="";
-        /*if (flagComment){ //onceki satir halihazirda coklu yorum satiri miydi?
-            if (depthVanComment>=returnDepth(input)){
-                return "";
-            }
-        } else {*/
-            flag(input);
-            if ((flagComment && returnCommentType(input).equals("htmlComment")) && !inputZeroDepthForm(input).equals("/")){ //bu satirda yalniz "/" karakteri yoksa
-                                                                                                                            //yani tek satirlik yorum ise
-                flagComment=false;
-                String[] comment = inputZeroDepthForm(input).split(" ");
-                commentContent += inputZeroDepthForm(input).substring(comment[0].length()+1);
-                return commentContent;
-            } else if ((flagComment && returnCommentType(input).equals("htmlComment")) && inputZeroDepthForm(input).equals("/")){//çok satirli yorum basliyor
-                if (depthVanComment<returnDepth(input)){
-                    return input; //OLMAZ!!!! Normal islem yapmali. baska bir flag gerekebilir.
-                } else{
+        // MARKED AS OBSOLETE, returnTextContent method covers this functionality
+        //
 
-                }
-                return "";
-            }
-        //}  -->else' in kapanisi
-        return "";
+        return null;
     }
 
     // Return true if Whitespace removal symbols were found
@@ -285,10 +244,8 @@ public class HamlConverter {
     // Return escaped content found in line
     //
 
-    // Todo: returnClassNames method here (String)
     // Return classNames
     //
-    // Still needs improving: 1.probleem: ".class1.class2"; 2. probleem:"a.jpg" .....
     public static String returnClassName(String input) {
         String className = null;
         int startPos;
@@ -297,15 +254,19 @@ public class HamlConverter {
         String currChar = "";
 
         // If the haml line represents a tag and . occurs, get the first occurrence of . and retrieve the className
-        if (returnIsTag(input) && input.contains(".")) {
+        if ((returnIsTag(input) && input.contains(".")) && !extractAttributeContent(input).contains(".") ){
             // get start position of class name
             startPos = input.indexOf(".") + 1;
             // get end position of class name, can end by a ' ','#','(','<','>' or end of line (returns -1 in this case)
             for (int i = startPos; i < input.length(); i++) {
                 currChar = input.substring(i, i + 1);
+
                 if (currChar.equals(" ") || currChar.equals("#") || currChar.equals("(") || currChar.equals("<") || currChar.equals(">")) {
                     endPos = i;
                     break;
+                }
+                if (currChar.equals(".")){
+                    input= input.replace(currChar," ");
                 }
             }
             className = (endPos != -1) ? input.substring(startPos, endPos) : input.substring(startPos);
@@ -430,19 +391,19 @@ public class HamlConverter {
         // Return elementType, if a tag was found
         String tagName = isTag ? returnTagName(input) : null;
         // Return whether text was found in line
-        boolean hasText = returnHasText(input);//false; // Todo: call returnHasText method here     OK
+        boolean hasText = returnHasText(input);
         // Return the actual text content found in the line
-        String textContent = returnTextContent(input);//""; // Todo: call returnTextContent method here     OK
+        String textContent = returnTextContent(input);
         // Return whether comment was found in line
-        boolean isComment = returnIsComment(input);//false; // Todo: call returnIsComment method here       OK
+        boolean isComment = returnIsComment(input);
         // Return the commenttype found in line (htmlComment or hamlComment)
-        String commentType = returnCommentType(input); // Todo: call returnCommentType method here      OK
+        String commentType = returnCommentType(input);
         // Return the comment content
-        String commentContent = returnCommentContent(input); //""; // Todo: call returnCommentContent method here       OK
+        String commentContent = returnCommentContent(input); //""; // OBSOLETE
         // Return if escape symbol was found in line
-        boolean hasEscaping = false; // Todo: call returnHasEscaping method here
+        boolean hasEscaping = false; // OBSOLETE call returnHasEscaping method here
         // Return escaped content found in line
-        String escapedContent = ""; // Todo: call returnEscapedContent method here
+        String escapedContent = "";  // OBSOLETE call returnEscapedContent method here
         // Return if element has a white-space-removal symbol
         boolean hasWhiteSpaceRemoval = returnHasWSRM(input);
         // Return what white-space-removal symbols
@@ -454,7 +415,7 @@ public class HamlConverter {
         // Return idName
         String id = returnIdName(input);
         // Return classNames
-        String className = returnClassName(input); //""; // Todo: call returnClassNames method here
+        String className = returnClassName(input);
         // Return attributes
         HashMap<String,String> attributes = null; // Todo: call returnAttributes method here
 
@@ -517,14 +478,6 @@ public class HamlConverter {
                 // Add the parent to the parents list
                 if(parentEl == null){ parents.add(currEl); }
 
-                    // System.out.print(currEl.getLineNumber() + " " + currEl.getDepth() + " I'm same level");
-
-                    /*if(currEl.getDepth() != 0){
-                        System.out.println("=> my parent is on line " + parents.get(parents.size()-1).getLineNumber());
-                    }else{
-                        System.out.print("\n");
-                    }*/
-
                 // If currEl.getDepth() == 0 => Add element to root level of nestedElements
                 // Else => It needs to be added to its parent
                 if(currEl.getDepth() == 0){
@@ -533,18 +486,14 @@ public class HamlConverter {
                     parents.get(parents.size()-1).addChild(currEl);
                 }
 
-
-
             }
 
             if (currEl.getDepth() == currDepth + 1) {
-                    // System.out.print(currEl.getLineNumber() + " " + currEl.getDepth() + " I'm level deeper");
 
                 // The parent element is the previous hamlDataElement
                 parentEl = originalElements.get(i-1);
                 // Add it to the parents list
                 parents.add(parentEl);
-                    //System.out.println("=> my parent is on line " + parentEl.getLineNumber());
 
                 // Add current element as a child to its parent
                 parentEl.addChild(currEl);
@@ -556,17 +505,11 @@ public class HamlConverter {
             if (currEl.getDepth() < currDepth) {
                 // check how many levels the current element went up
                 depthChange = parents.size() - currEl.getDepth();
-                    //System.out.println(depthChange);
 
                 // Remove the deeper elements from parents list
                 for(int j = parents.size(); j > currEl.getDepth(); j--){
                     parents.remove(j-1);
                 }
-
-                    // System.out.print(currEl.getLineNumber() + " " + currEl.getDepth() + " I'm level higher");
-                    /* System.out.println("=> my parent is on line " +
-                            parents.get(parents.size()-1).getLineNumber()
-                    ); */
 
                 // Add the current element to its parent
                 parents.get(parents.size()-1).addChild(currEl);
@@ -577,7 +520,7 @@ public class HamlConverter {
 
         }
 
-        hamlData.hamlDataElements = nestedElements; //null;
+        hamlData.hamlDataElements = nestedElements;
         return hamlData;
     }
 
