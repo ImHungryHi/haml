@@ -190,7 +190,10 @@ public class HtmlConverter {
         else if ((!hasChildren && hasNewLine && hasInnerWSRM) ||
                 (el.hasChildren() && hasInnerWSRM) ||
                 siblingHasOuterWSRM) {
-            html.addToPrevious(textContent.replace("\n", "\n" + createIndentation(el)));
+            // This should be correct:
+            //html.addToPrevious(textContent.replace("\n", "\n" + createIndentation(el)));
+            // But this outputs correct output instead of putting in too many indents... :
+            html.addToPrevious(textContent);
         }
         else {
             String indents = createIndentation(el) + (!isText ? Config.INDENTATION : "");
