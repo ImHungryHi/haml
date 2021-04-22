@@ -284,7 +284,7 @@ element.setChildren(children);
                 ", depth=" + depth +
                 ", isTag=" + isTag +
                 ", tagName='" + tagName + '\'' +
-                //", hasText=" + hasText +
+                ", hasText=" + hasText +
                 ", textContent='" + textContent + '\'' +
                 ", isComment=" + isComment +
                 ", commentType='" + commentType + '\'' +
@@ -293,9 +293,9 @@ element.setChildren(children);
                 //", escapedContent='" + escapedContent + '\'' +
                 //", hasWhiteSpaceRemoval=" + hasWhiteSpaceRemoval +
                 //", whiteSpaceRemovalType='" + whiteSpaceRemovalType + '\'' +
-                ", id='" + id + '\'' +
+                //", id='" + id + '\'' +
                 //", className='" + className + '\'' +
-                //", attributes=" + attributes +
+                ", attributes=" + attributes +
                 (parent != null ? ", parent=" + (parent.isComment ? "Comment" : parent.tagName) : "") +
                 //", children=" + strChildren;
                 (this.children.size() > 0 ? ", children==>\n" + toStringIndent + children : "");

@@ -117,10 +117,10 @@ public class HamlConverter {
         if (returnIsTag(input) && input.contains("#")) {
             // get start position of id name
             startPos = input.indexOf("#") + 1;
-            // get end position of id name, can end by a ' ','.','(','<','>' or end of line (returns -1 in this case)
+            // get end position of id name, can end by a ' ','.','(','<','>','{' or end of line (returns -1 in this case)
             for (int i = startPos; i < input.length(); i++) {
                 currChar = input.substring(i, i + 1);
-                if (currChar.equals(" ") || currChar.equals(".") || currChar.equals("(") || currChar.equals("<") || currChar.equals(">")) {
+                if (currChar.equals(" ") || currChar.equals(".") || currChar.equals("(") || currChar.equals("<") || currChar.equals(">") || currChar.equals("{")) {
                     endPos = i;
                     break;
                 }
@@ -135,12 +135,23 @@ public class HamlConverter {
     public static boolean returnHasText(String input) {
         boolean hasText = false;
 
+        // Trim indentation from input
+        String str = inputZeroDepthForm(input);
+        // Check for space after first ) or }
+        int endPosAttrSymb1 = str.indexOf(')');
+        int endPosAttrSymb2 = str.indexOf('}');
+        int startPosSearch = Math.max(endPosAttrSymb1,endPosAttrSymb2);
+        // Trim non-text related from input
+        if(startPosSearch > 0){
+            str = str.substring(startPosSearch);
+        }
+
         // If haml line is not a tag and not a comment => true
         if(!returnIsTag(input) && !returnIsComment(input)){
             hasText = true;
         }
         // If haml line is a tag or a comment, check if content after space
-        else if(inputZeroDepthForm(input).split(" ").length > 1)
+        else if(str.split(" ").length > 1)
         {
             hasText = true;
         }
@@ -160,8 +171,20 @@ public class HamlConverter {
             }else{
                 // If a tag, find first space and set textContent
                 if(returnIsTag(input)){
-                    int textStart = inputZeroDepthForm(input).indexOf(" ") + 1;
-                    textContent = inputZeroDepthForm(input).substring(textStart);
+                    // Trim indentation from input
+                    String str = inputZeroDepthForm(input);
+                    // Check position where text starts
+                    int endPosAttrSymb1 = str.indexOf(')');
+                    int endPosAttrSymb2 = str.indexOf('}');
+                    int startPosSearch = Math.max(endPosAttrSymb1,endPosAttrSymb2);
+                    // Trim non-text related from input
+                    if(startPosSearch > 0){
+                        textContent = str.substring(startPosSearch+2);
+                    }else if(startPosSearch < 0){
+                        startPosSearch = str.indexOf(' ',startPosSearch) + 1;
+                        textContent = str.substring(startPosSearch);
+                    }
+
                 }
                 // If a htmlComment, trim haml html comment symbols '/ '
                 if(returnCommentType(input).equals("htmlComment")){
@@ -212,15 +235,71 @@ public class HamlConverter {
     // Return true if Whitespace removal symbols were found
     //
     public static boolean returnHasWSRM(String input){
-        boolean wsrm = false;
-        // Todo
-        // Still needs improving, because '<' or '>' might occur in the text content.
-        // Then it cannot be considered as a white space removal symbol.
-        // Therefore we need to check if '>' or '<' is set directly after the tag definition.
-        if(returnIsTag(input) && (input.contains(">") || input.contains("<"))){
-            wsrm = true;
+        boolean hasWSRM = false;
+        String trimmedInput = input.trim(); // Remove leading and trailing spaces (ie indents)
+        int idxOpenChevron = -1,
+            idxCloseChevron = -1,
+            idxEnd = trimmedInput.length() - 1,
+            startCount = 0,
+            idxOpenParenthesis = trimmedInput.indexOf("("),
+            idxCloseParenthesis = trimmedInput.indexOf(")"),
+            idxOpenAccolade = trimmedInput.indexOf("{"),
+            idxCloseAccolade = trimmedInput.indexOf("}");
+
+        // Identify whether or not there are attributes (that might contain "=>")
+        if (idxOpenParenthesis >= 0 && idxCloseParenthesis > idxOpenParenthesis) {
+            startCount = idxCloseParenthesis + 1;
         }
-        return wsrm;
+        else if (idxOpenAccolade >= 0 && idxCloseAccolade > idxOpenAccolade) {
+            startCount = idxCloseAccolade + 1;
+        }
+
+        // Short logical explanation:
+        //  Clear text html will be considered text content.
+        //  Let's discount "<>" as HTML - at least 1 character should be in between (eg <i>, <b>, ...)
+        //  If more chevrons ("<>") are found outside of idxOpenChevron and idxCloseChevron - we'll have found WSRM
+        for (int x = startCount; x <= idxEnd; x++) {
+            if (trimmedInput.charAt(x) == '<') {
+                // Opening a second consecutive chevron means WSRM
+                if (idxOpenChevron >= 0) {
+                    hasWSRM = true;
+                    break;
+                }
+
+                // Last character is an opening chevron? WSRM!
+                if (x == idxEnd) {
+                    hasWSRM = true;
+                    break;
+                }
+
+                idxOpenChevron = x;
+            }
+            else if (trimmedInput.charAt(x) == '>') {
+                // Closing chevron before an open one means we have WSRM
+                if (idxOpenChevron < 0) {
+                    hasWSRM = true;
+                    break;
+                }
+
+                idxCloseChevron = x;
+
+                // If we haven't reached the end yet, reset
+                if (x < idxEnd) {
+                    idxOpenChevron = -1;
+                    idxCloseChevron = -1;
+                }
+            }
+        }
+
+        if (idxOpenChevron >= 0 && idxCloseChevron < 0) {
+            hasWSRM = true;
+        }
+
+        if(!returnIsTag(input)){
+            hasWSRM = false;
+        }
+
+        return hasWSRM;
     }
 
     // Return the type(s) of Whitespace removal symbols found
@@ -236,11 +315,11 @@ public class HamlConverter {
 
 
 
-    // Todo: returnHasEscaping method here (boolean)
+    // OBSOLETE returnHasEscaping method here (boolean)
     // Return if escape symbol was found in line
     //
 
-    // Todo: returnEscapedContent method here (String)
+    // OBSOLETE returnEscapedContent method here (String)
     // Return escaped content found in line
     //
 
@@ -319,8 +398,22 @@ public class HamlConverter {
                         attributes.put(keySet[0].replace(":", "").trim(), keySet[1].replace("\"", "").trim());
                     }
                 }
+            }else{
+                // Retrieve Strings key & value for a single attribute and put in HashMap attributes
+                //
+                String[] attr = strAttributes.split("=");
+                String key = attr[0];
+                String value = attr[1];
+                attributes.put(key,value.replace("\"",""));
             }
         }
+
+        /*
+        System.out.println("----");
+        for (HashMap.Entry<String, String> entry : attributes.entrySet()) {
+            System.out.println(entry.getKey() + "|" + entry.getValue());
+        }
+         */
 
         return attributes;
     }
@@ -417,7 +510,7 @@ public class HamlConverter {
         // Return classNames
         String className = returnClassName(input);
         // Return attributes
-        HashMap<String,String> attributes = null; // Todo: call returnAttributes method here
+        HashMap<String,String> attributes = returnAttributes(input);
 
 
 
@@ -445,11 +538,9 @@ public class HamlConverter {
         // Set id
         if(id != null){ el.setId(id); }
         // Set classes
-        // Todo: use setter method 'setClassName'
         if(className != null){ el.setClassName(className); }
         // Set attributes
-        // Todo: use setter method 'setAttributes'
-
+        el.setAttributes(attributes);
 
 
         return el;

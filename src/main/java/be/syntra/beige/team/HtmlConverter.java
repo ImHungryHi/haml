@@ -87,11 +87,14 @@ public class HtmlConverter {
 
         if (el.getChildren().size() < 1) {
             // No children, so if there's no text then there's no comment
-            html.addElement(indents + createCommentContent(el));
+            String commentContent = createCommentContent(el);
+
+            if (commentContent != null) {
+                html.addElement(indents + commentContent);
+            }
         }
         else {
-            // TODO: if we replace commentContent for textContent, these will have to change here - or in getCommentContent()
-            String commentContent = el.getCommentContent();
+            String commentContent = el.getTextContent();
             html.addElement(indents + "<!--");
 
             if (commentContent != null && !commentContent.isEmpty()) {
@@ -190,7 +193,10 @@ public class HtmlConverter {
         else if ((!hasChildren && hasNewLine && hasInnerWSRM) ||
                 (el.hasChildren() && hasInnerWSRM) ||
                 siblingHasOuterWSRM) {
-            html.addToPrevious(textContent.replace("\n", "\n" + createIndentation(el)));
+            // This should be correct:
+            //html.addToPrevious(textContent.replace("\n", "\n" + createIndentation(el)));
+            // But this outputs correct output instead of putting in too many indents... :
+            html.addToPrevious(textContent);
         }
         else {
             String indents = createIndentation(el) + (!isText ? Config.INDENTATION : "");
@@ -202,7 +208,7 @@ public class HtmlConverter {
         String endTag = createEndTag(el);
 
         // Prevent the code from adding empty lines
-        if (endTag.equals("")) {
+        if (endTag.equals("") || Config.EMPTY_TAGS.contains(el.getTagName())) {
             return;
         }
 
@@ -223,7 +229,8 @@ public class HtmlConverter {
         //  The third line checks for WSRM inside the tag itself ("<")
         if ((!hasChildren && el.isTag() && el.hasText() && !el.getTextContent().contains("\n")) ||
                 (hasChildren && childHasWSRM && childHasOuterWSRM) ||
-                hasInnerWSRM) {
+                hasInnerWSRM ||
+                !hasChildren && el.isTag() && (!el.hasText() || (el.hasText() && el.getTextContent().equals("")))) {
             html.addToPrevious(endTag);
             return;
         }
@@ -315,8 +322,7 @@ public class HtmlConverter {
         }
 
         String indents = createIndentation(el);
-        String commentContent = el.getCommentContent();
-        // TODO: if we replace commentContent for textContent, these will have to change here - or in getCommentContent()
+        String commentContent = el.getTextContent();
 
         if (commentContent != null && !commentContent.isEmpty()) {
             if (commentContent.contains("\n")){
