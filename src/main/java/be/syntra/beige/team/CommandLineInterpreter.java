@@ -60,7 +60,7 @@ import java.util.HashMap;
  */
 
 public class CommandLineInterpreter {
-    private static ArrayList<String> fileNames;
+    private static ArrayList<String> fileNames = new ArrayList<>();
     private static File dirPath = new File(System.getProperty("user.dir"));
     private static File testPath = new File(".");
     private boolean update = false;
@@ -68,6 +68,7 @@ public class CommandLineInterpreter {
 
     public static void main(String[] args) throws IOException {
         CommandLineInterpreter interpreter = new CommandLineInterpreter();
+        System.out.println("Arguments:");
         for (String s : args) {
             System.out.println(s);
         }
@@ -76,6 +77,7 @@ public class CommandLineInterpreter {
 //        System.out.println(testPath.getCanonicalPath());
 
         interpreter.interpretCommand(args);
+
         try{
             for (int i = 0; i< fileNames.size();i++){
                 System.out.println(fileNames.get(i));
@@ -92,7 +94,7 @@ public class CommandLineInterpreter {
      * Sets the 'filesNames' arraylist with the names of the inputfiles and the names of their respective outputfiles
      */
     public void interpretCommand(String[] args) {
-        System.out.println("#arguments=" + args.length + "\n");
+
 
 
         if (args.length == 0) {
