@@ -171,8 +171,20 @@ public class HamlConverter {
             }else{
                 // If a tag, find first space and set textContent
                 if(returnIsTag(input)){
-                    int textStart = inputZeroDepthForm(input).indexOf(" ") + 1;
-                    textContent = inputZeroDepthForm(input).substring(textStart);
+                    // Trim indentation from input
+                    String str = inputZeroDepthForm(input);
+                    // Check position where text starts
+                    int endPosAttrSymb1 = str.indexOf(')');
+                    int endPosAttrSymb2 = str.indexOf('}');
+                    int startPosSearch = Math.max(endPosAttrSymb1,endPosAttrSymb2);
+                    // Trim non-text related from input
+                    if(startPosSearch > 0){
+                        textContent = str.substring(startPosSearch+2);
+                    }else if(startPosSearch < 0){
+                        startPosSearch = str.indexOf(' ',startPosSearch) + 1;
+                        textContent = str.substring(startPosSearch);
+                    }
+
                 }
                 // If a htmlComment, trim haml html comment symbols '/ '
                 if(returnCommentType(input).equals("htmlComment")){
