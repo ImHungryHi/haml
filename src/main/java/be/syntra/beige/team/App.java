@@ -20,6 +20,8 @@ import java.io.*;
 public class App {
     public static void main(String[] args) throws IOException {
 
+        CommandLineInterpreter interpreter = new CommandLineInterpreter();
+
         // Read command from console
         //
         // -- code here --
