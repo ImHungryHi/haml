@@ -12,41 +12,6 @@ import java.util.Collections;
 import java.util.HashMap;
 
 /** interpreter of command lines:
- commands:
-
- one to one mode:
-
- (One-to-one mode compiles a single input file (input.haml)
- to a single output location (output.html). If no output location is passed,
- the compiled CSS is printed to the terminal.
- The input file is parsed as HAML if its extension is .haml.)
-
- java -jar HamlIt.jar <input.haml> [output.html]
-
- many to many mode (compiles one or more input files into one or more output files.
- It can also comile all HAML files in a directory to
- HTML files with the same name in another directory):
-
- # Compiles index.haml to index.html.
- $ java -jar HamlIt.jar index.haml:index.html
-
- # Compiles index.jhaml and contact.jhml to index.html and contact.html.
- $ java -jar HamlIt.jar index.haml:index.html contact.haml:contact.html
-
- # Compiles all haml files in themes/ to html files in public/site/.
- $ java -jar HamlIt.jar themes:public/site
-
- When compiling whole directories, HamlIt will ignore files whose names begin with _.
-
- --update If the --update flag is passed, HamlIt will only compile
- files that have been modified more recently than the corresponding Html file was generated.
- It will also print status messages when updating files.
-
- -watch This flag acts like the --update flag,
- but after the first round compilation is done
- HamlIt stays open and continues compiling files whenever they change.
-
-
 
  possible inputs:
  1) input.haml output.html (> inputfile and create outputfile)
@@ -57,13 +22,12 @@ import java.util.HashMap;
  6) --update directory
  7) --update file (check .html file, if newer, update html file; not newer, "file is up-to-date"
  8)
- */
+ **/
 
 public class CommandLineInterpreter {
     private static ArrayList<String> fileNames = new ArrayList<>();
     private static File dirPath = new File(System.getProperty("user.dir"));
     private static File testPath = new File(".");
-    private boolean update = false;
     private boolean watch = false;
 
     public static void main(String[] args) throws IOException {
@@ -94,9 +58,6 @@ public class CommandLineInterpreter {
      * Sets the 'filesNames' arraylist with the names of the inputfiles and the names of their respective outputfiles
      */
     public void interpretCommand(String[] args) {
-
-
-
         if (args.length == 0) {
             System.out.println("No arguments given. Use \"--help\" for commands.\n");
         } else if (args.length == 1) {
@@ -109,8 +70,10 @@ public class CommandLineInterpreter {
 
             } else if (command.equals("--watch")) {
                 watch = true;
-
+                // same as update => so get outdated files + setup watch service in directory.
             } else {
+
+                // Still need to add option of compiling from directory to directory
                 if (command.matches(".:.")) {
 
                     addToFileNames(command.split(":"));
