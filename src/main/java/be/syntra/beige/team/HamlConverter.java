@@ -235,15 +235,71 @@ public class HamlConverter {
     // Return true if Whitespace removal symbols were found
     //
     public static boolean returnHasWSRM(String input){
-        boolean wsrm = false;
-        // Todo
-        // Still needs improving, because '<' or '>' might occur in the text content.
-        // Then it cannot be considered as a white space removal symbol.
-        // Therefore we need to check if '>' or '<' is set directly after the tag definition.
-        if(returnIsTag(input) && (input.contains(">") || input.contains("<"))){
-            wsrm = true;
+        boolean hasWSRM = false;
+        String trimmedInput = input.trim(); // Remove leading and trailing spaces (ie indents)
+        int idxOpenChevron = -1,
+            idxCloseChevron = -1,
+            idxEnd = trimmedInput.length() - 1,
+            startCount = 0,
+            idxOpenParenthesis = trimmedInput.indexOf("("),
+            idxCloseParenthesis = trimmedInput.indexOf(")"),
+            idxOpenAccolade = trimmedInput.indexOf("{"),
+            idxCloseAccolade = trimmedInput.indexOf("}");
+
+        // Identify whether or not there are attributes (that might contain "=>")
+        if (idxOpenParenthesis >= 0 && idxCloseParenthesis > idxOpenParenthesis) {
+            startCount = idxCloseParenthesis + 1;
         }
-        return wsrm;
+        else if (idxOpenAccolade >= 0 && idxCloseAccolade > idxOpenAccolade) {
+            startCount = idxCloseAccolade + 1;
+        }
+
+        // Short logical explanation:
+        //  Clear text html will be considered text content.
+        //  Let's discount "<>" as HTML - at least 1 character should be in between (eg <i>, <b>, ...)
+        //  If more chevrons ("<>") are found outside of idxOpenChevron and idxCloseChevron - we'll have found WSRM
+        for (int x = startCount; x <= idxEnd; x++) {
+            if (trimmedInput.charAt(x) == '<') {
+                // Opening a second consecutive chevron means WSRM
+                if (idxOpenChevron >= 0) {
+                    hasWSRM = true;
+                    break;
+                }
+
+                // Last character is an opening chevron? WSRM!
+                if (x == idxEnd) {
+                    hasWSRM = true;
+                    break;
+                }
+
+                idxOpenChevron = x;
+            }
+            else if (trimmedInput.charAt(x) == '>') {
+                // Closing chevron before an open one means we have WSRM
+                if (idxOpenChevron < 0) {
+                    hasWSRM = true;
+                    break;
+                }
+
+                idxCloseChevron = x;
+
+                // If we haven't reached the end yet, reset
+                if (x < idxEnd) {
+                    idxOpenChevron = -1;
+                    idxCloseChevron = -1;
+                }
+            }
+        }
+
+        if (idxOpenChevron >= 0 && idxCloseChevron < 0) {
+            hasWSRM = true;
+        }
+
+        if(!returnIsTag(input)){
+            hasWSRM = false;
+        }
+
+        return hasWSRM;
     }
 
     // Return the type(s) of Whitespace removal symbols found
