@@ -104,19 +104,16 @@ public class CommandLineInterpreter {
             if (command.equals("--help")) {
                 showCommands();
             } else if (command.equals("--update")) {
-                String[] arr = getFilesToUpdate();
-                for(String s : arr){
-                    fileNames.add(s);
-                    fileNames.add(s.split("\\.")[0] + "html");
-                }
+
+                addToFileNames(getFilesToUpdate());
 
             } else if (command.equals("--watch")) {
                 watch = true;
-                //initiate watch service
+
             } else {
                 if (command.matches(".:.")) {
-                    fileNames.add(splitCommand(args[0])[0]);
-                    fileNames.add(splitCommand(args[0])[1]);
+
+                    addToFileNames(command.split(":"));
 
                 } else {
                     fileNames.add(command);
@@ -128,10 +125,13 @@ public class CommandLineInterpreter {
         }
     }
 
-
-    public String[] splitCommand(String s){
-        return s.split(":");
+    public void addToFileNames(String[] arr){
+        for(String s : arr){
+            fileNames.add(s);
+            fileNames.add(s.split("\\.")[0] + "html");
+        }
     }
+
 
     public void showCommands(){
         System.out.println("# Compiles index.haml to index.html.");
