@@ -8,8 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+
 
 /** interpreter of command lines:
 
@@ -26,19 +25,18 @@ import java.util.HashMap;
 
 public class CommandLineInterpreter {
     private static ArrayList<String> fileNames = new ArrayList<>();
-    private static File dirPath = new File(System.getProperty("user.dir"));
-    private static File testPath = new File(".");
+    private static final File dirPath = new File(System.getProperty("user.dir"));
     private boolean watch = false;
+    private static boolean toDirectory = false;
+    private Path outputPathForDirectory;
+    private static String error = "Something went wrong. Check \"--help\" for commands";
 
     public static void main(String[] args) throws IOException {
         CommandLineInterpreter interpreter = new CommandLineInterpreter();
         System.out.println("Arguments:");
         for (String s : args) {
-            System.out.println(s);
+            System.out.println("Argument: " + s);
         }
-//        System.out.println(dirPath);
-//        System.out.println(dirPath.getAbsolutePath());
-//        System.out.println(testPath.getCanonicalPath());
 
         interpreter.interpretCommand(args);
 
@@ -46,9 +44,10 @@ public class CommandLineInterpreter {
             for (int i = 0; i< fileNames.size();i++){
                 System.out.println(fileNames.get(i));
             }
+
         }
-         catch (Exception e){
-             System.out.println("fileNames is empty");
+         catch (NullPointerException e){
+             System.out.println(error);
          }
     }
 
@@ -60,38 +59,48 @@ public class CommandLineInterpreter {
     public void interpretCommand(String[] args) {
         if (args.length == 0) {
             System.out.println("No arguments given. Use \"--help\" for commands.\n");
-        } else if (args.length == 1) {
+        }
+        else if (args.length == 1) {
             String command = args[0];
             if (command.equals("--help")) {
                 showCommands();
-            } else if (command.equals("--update")) {
-
+            }
+            else if (command.equals("--update")) {
                 addToFileNames(getFilesToUpdate());
-
-            } else if (command.equals("--watch")) {
-                watch = true;
+            }
+            else if (command.equals("--watch")) {
+                addToFileNames(getFilesToUpdate());
                 // same as update => so get outdated files + setup watch service in directory.
-            } else {
-
-                // Still need to add option of compiling from directory to directory
-                if (command.matches(".:.")) {
-
-                    addToFileNames(command.split(":"));
-
-                } else {
+            }
+            else if(command.contains(":")) {
+                if(countDoublePoint(command)){
+                    interpretDoublePoint(command);
+                } else error = "Wrong command, contains multiple \":\". Use \"--help\" for commands.\n";
+            }
+            else {
                     fileNames.add(command);
                     fileNames.add(null); //write to console;
-                }
             }
+
         } else {
-            System.out.println("nothing happened");
+            System.out.println("args length > 1" );
         }
     }
+   /*
+   GETTER
+    */
+    public static ArrayList<String> getFileNames() {
+        return fileNames;
+    }
 
-    public void addToFileNames(String[] arr){
+    /**
+    Adds the files that need to be compiled to arrayList FileNames so that our app can get the list.
+     **/
+    public static void addToFileNames(String[] arr){
         for(String s : arr){
             fileNames.add(s);
-            fileNames.add(s.split("\\.")[0] + "html");
+            String split = s.split("\\.")[0] + ".html";
+            fileNames.add(split);
         }
     }
 
@@ -137,13 +146,14 @@ public class CommandLineInterpreter {
             );
             return files;
         }
-        System.out.println("error: no directory");
+        System.out.println(error);
         return null;
     }
 
      /**
      checks which files are outdated based on time
      of modification in correspondence with their respective outputfiles.
+      When haml file has no corresponding .html file, its is included in outdatedlist and will be compiled.
      **/
     public boolean checkBasicAttributes(String nameHaml) throws IOException {
         Path fileHaml = Paths.get(nameHaml);
@@ -163,5 +173,48 @@ public class CommandLineInterpreter {
             }
 
         }
+
+
+    /**
+     *
+     * @param command
+     * interprets to command with ":". Checks if command is about directory to directory or about file to file;
+     * In the first case we put ToDirectory to true to signal app that he needs to use outputPathForDirectory as outputpath.
+     */
+    public void interpretDoublePoint(String command){
+        String[] arr = command.split(":");
+        File inputDirFile = new File(arr[0]);
+        File outputDirFile = new File(arr[1]);
+
+
+        if(inputDirFile.isDirectory()){
+            String[] files = inputDirFile.list(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.endsWith(".haml");
+                }
+            });
+            if(files == null){
+                error = "No haml files detected.";
+            }
+            else if(outputDirFile.isDirectory()) {
+                toDirectory = true;
+            } else
+                addToFileNames(files);
+            }
+        else if(inputDirFile.isFile() && inputDirFile.toPath().endsWith(".haml")) {
+            addToFileNames(arr);
+        }
+    }
+
+    public boolean countDoublePoint(String command){
+        int count = 0;
+        for(int i = 0; i<command.length(); i++){
+            if(command.charAt(i) == ':'){
+                count++;
+            }
+        }
+        return count == 1 ? true : false;
+    }
 }
 
