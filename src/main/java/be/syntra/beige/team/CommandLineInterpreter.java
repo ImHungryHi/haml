@@ -31,24 +31,18 @@ public class CommandLineInterpreter {
     private Path outputPathForDirectory;
     private static String error = "Something went wrong. Check \"--help\" for commands";
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         CommandLineInterpreter interpreter = new CommandLineInterpreter();
-        System.out.println("Arguments:");
-        for (String s : args) {
-            System.out.println("Argument: " + s);
-        }
+
 
         interpreter.interpretCommand(args);
-
-        try{
-            for (int i = 0; i< fileNames.size();i++){
-                System.out.println(fileNames.get(i));
-            }
-
+        if(fileNames.size() == 0){
+            System.out.println(error);
+        } else
+            System.out.println("Printing files:");
+        for (int i = 0; i< fileNames.size();i++){
+            System.out.println(fileNames.get(i));
         }
-         catch (NullPointerException e){
-             System.out.println(error);
-         }
     }
 
     /**
@@ -58,7 +52,7 @@ public class CommandLineInterpreter {
      */
     public void interpretCommand(String[] args) {
         if (args.length == 0) {
-            System.out.println("No arguments given. Use \"--help\" for commands.\n");
+            error = "No arguments given. Use \"--help\" for commands.\n";
         }
         else if (args.length == 1) {
             String command = args[0];
@@ -102,6 +96,10 @@ public class CommandLineInterpreter {
             String split = s.split("\\.")[0] + ".html";
             fileNames.add(split);
         }
+    }
+    public static void addToFileNames(String input, String output){
+        fileNames.add(input);
+        fileNames.add(output);
     }
 
 
@@ -186,7 +184,6 @@ public class CommandLineInterpreter {
         File inputDirFile = new File(arr[0]);
         File outputDirFile = new File(arr[1]);
 
-
         if(inputDirFile.isDirectory()){
             String[] files = inputDirFile.list(new FilenameFilter() {
                 @Override
@@ -199,11 +196,13 @@ public class CommandLineInterpreter {
             }
             else if(outputDirFile.isDirectory()) {
                 toDirectory = true;
-            } else
                 addToFileNames(files);
-            }
-        else if(inputDirFile.isFile() && inputDirFile.toPath().endsWith(".haml")) {
-            addToFileNames(arr);
+            } else
+                error = "Output directory is not correct";
+        }
+        else if(inputDirFile.isFile() && inputDirFile.getPath().endsWith(".haml")) {
+            System.out.println("do i get here?");
+            addToFileNames(inputDirFile.toString(),outputDirFile.toString());
         }
     }
 
