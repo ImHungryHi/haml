@@ -3,9 +3,7 @@ package be.syntra.beige.team;
 
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 
@@ -31,9 +29,8 @@ public class CommandLineInterpreter {
     private Path outputPathForDirectory;
     private static String error = "Something went wrong. Check \"--help\" for commands";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         CommandLineInterpreter interpreter = new CommandLineInterpreter();
-
 
         interpreter.interpretCommand(args);
         if(fileNames.size() == 0){
@@ -50,7 +47,7 @@ public class CommandLineInterpreter {
      * @param args
      * Sets the 'filesNames' arraylist with the names of the inputfiles and the names of their respective outputfiles
      */
-    public void interpretCommand(String[] args) {
+    public void interpretCommand(String[] args) throws IOException {
         if (args.length == 0) {
             error = "No arguments given. Use \"--help\" for commands.\n";
         }
@@ -179,12 +176,19 @@ public class CommandLineInterpreter {
      * interprets to command with ":". Checks if command is about directory to directory or about file to file;
      * In the first case we put ToDirectory to true to signal app that he needs to use outputPathForDirectory as outputpath.
      */
-    public void interpretDoublePoint(String command){
+
+    //NEEDS FINETUNING
+
+    public void interpretDoublePoint(String command) throws IOException {
         String[] arr = command.split(":");
         File inputDirFile = new File(arr[0]);
         File outputDirFile = new File(arr[1]);
 
-        if(inputDirFile.isDirectory()){
+        if(inputDirFile.isFile() && inputDirFile.getPath().endsWith(".haml"))
+        {
+            addToFileNames(inputDirFile.toString(), outputDirFile.toString());
+        }
+        else if(inputDirFile.isDirectory()){
             String[] files = inputDirFile.list(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
@@ -199,10 +203,6 @@ public class CommandLineInterpreter {
                 addToFileNames(files);
             } else
                 error = "Output directory is not correct";
-        }
-        else if(inputDirFile.isFile() && inputDirFile.getPath().endsWith(".haml")) {
-            System.out.println("do i get here?");
-            addToFileNames(inputDirFile.toString(),outputDirFile.toString());
         }
     }
 
