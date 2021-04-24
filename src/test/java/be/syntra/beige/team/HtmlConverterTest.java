@@ -17,6 +17,28 @@ public class HtmlConverterTest extends TestCase {
     }
 
     @Test
+    public void testEscaping() {
+        String knownEscapes = "\\ &€\"' -<img>";
+        final HamlDataElement el = new HamlDataElement(1, 0, true, "p", true, knownEscapes, false, null, null, false, null, false, null);
+        final HamlDataElement normal = new HamlDataElement(1, 0, true, "p", true, "This is just some text, nothing special here", false, null, null, false, null, false, null);
+        ArrayList<HamlDataElement> list = new ArrayList<HamlDataElement>() {{
+            add(el);
+            add(normal);
+        }};
+        ArrayList<String> output = new ArrayList<String>() {{
+            add("<p>&amp;&euro;&quot;&apos;&nbsp;&ndash;&lt;img&gt;</p>");
+            add("<p>This is just some text, nothing special here</p>");
+        }};
+
+        HamlData hd = new HamlData("testinput.haml", "testoutput.html");
+        Html html = new Html(hd.getInputFileName(), hd.getOutputFileName());
+        hd.hamlDataElements = list;
+        HtmlConverter.convertToHtml(hd.getHamlDataElements(), html);
+
+        assertEquals(output, html.getHtmlElements());
+    }
+
+    @Test
     public void testWhitespaces() {
         ArrayList<String> compA = new ArrayList<String>() {{
             add("<img><img><img>");
