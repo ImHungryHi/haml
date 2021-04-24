@@ -322,11 +322,22 @@ public class HtmlConverter {
 
             for (int x = 0; x < output.length(); x++) {
                 char charCurrent = output.charAt(x);
+                int idxDelim = output.indexOf(";", x);
+                boolean alreadyReplaced = idxDelim > (x + 2) &&
+                        Config.HTML_ENTITIES.containsValue(output.substring(x, ++idxDelim));
 
-                if (Config.HTML_ENTITIES.containsKey(charCurrent)) {
+                if (charCurrent == '&' && !alreadyReplaced) {
+                    // Ampersand is a case on its own
+                    output = output.substring(0, x) + Config.HTML_ENTITIES.get(charCurrent) + output.substring(x + 1);
+                    x += 4;
+                }
+                else if (!alreadyReplaced && Config.HTML_ENTITIES.containsKey(charCurrent)) {
                     String htmlEntity = Config.HTML_ENTITIES.get(charCurrent);
                     output = output.replace(Character.toString(charCurrent), htmlEntity);
                     x += htmlEntity.length() - 1;
+                }
+                else if (alreadyReplaced) {
+                    x += (--idxDelim - x);
                 }
             }
         }
