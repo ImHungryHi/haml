@@ -23,7 +23,7 @@ public class App {
         CommandLineInterpreter interpreter = new CommandLineInterpreter();
         interpreter.interpretCommand(args);
 
-        if(interpreter.getFileNames().size()>0) {
+        if(!interpreter.isIsError() && interpreter.getFileNames().size()>0) {
             for (int i = 0; i < interpreter.getFileNames().size(); i += 2) {
                 if (interpreter.getFileNames().get(i + 1) == null) {
                     compileFile(interpreter.getFileNames().get(i));
@@ -31,13 +31,13 @@ public class App {
                     compileFile(interpreter.getFileNames().get(i), interpreter.getFileNames().get(i + 1));
                 }
             }
-        }
+            System.out.println("Compiling is done.");
+        } else System.out.println(interpreter.getError());
     }
 
     public static void compileFile(String input) throws IOException {
         ReaderHaml rh = new ReaderHaml(input);
         HamlData hd = rh.read();
-        System.out.println(hd);
         HamlValidation validator = HamlValidation.validateHaml(hd);
         if(validator.isValid()){
 
@@ -66,7 +66,6 @@ public class App {
         ReaderHaml rh = new ReaderHaml(input, output);
         HamlData hd = rh.read();
         HamlValidation validator = HamlValidation.validateHaml(hd);
-        System.out.println(hd);
         if(validator.isValid()){
 
             // Create Html object

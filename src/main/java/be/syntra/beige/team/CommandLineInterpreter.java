@@ -23,26 +23,14 @@ import java.util.ArrayList;
 
 public class CommandLineInterpreter {
     private static ArrayList<String> fileNames = new ArrayList<>();
-    private static final Path dirPath = Paths.get(System.getProperty("user.dir"));
+    private static final Path DIRPATH = Paths.get(System.getProperty("user.dir"));
     private boolean watch = false;
     private static boolean toDirectory = false;
     private static Path inputPathDirectoryToWatch;
+    private static Path inputPathForDirectory;
     private static Path outputPathForDirectory;
+    private static boolean isError = false;
     private static String error = "Something went wrong. Check \"--help\" for commands";
-
-//    public static void main(String[] args) {
-//        CommandLineInterpreter interpreter = new CommandLineInterpreter();
-//
-////        interpreter.interpretCommand(args);
-////        if(fileNames.size() == 0){
-////            System.out.println(error);
-////        } else
-////            System.out.println("Printing files:");
-////
-////        for (int i = 0; i< fileNames.size();i++){
-////            System.out.println(fileNames.get(i));
-////        }
-//    }
 
 
    /*
@@ -58,6 +46,30 @@ public class CommandLineInterpreter {
     }
     public static Path getOutputPathForDirectory() {
         return outputPathForDirectory;
+    }
+
+    public static Path getInputPathForDirectory() {
+        return inputPathForDirectory;
+    }
+
+    public static Path getDIRPATH() {
+        return DIRPATH;
+    }
+
+    public static boolean isToDirectory() {
+        return toDirectory;
+    }
+
+    public static String getError() {
+        return error;
+    }
+
+    public static boolean isIsError() {
+        return isError;
+    }
+
+    public boolean isWatch() {
+        return watch;
     }
 
 
@@ -84,7 +96,7 @@ public class CommandLineInterpreter {
             }
             else if (command.equals("--watch")) {
                 addToFileNames(filesToUpdate());
-                inputPathDirectoryToWatch = dirPath;
+                inputPathDirectoryToWatch = DIRPATH;
                 watch = true;
             }
             else if(command.contains(":") && countDoublePoint(command)) {
@@ -105,7 +117,10 @@ public class CommandLineInterpreter {
                     if (checkNameInputOutput(input,output)) {
                         addToFileNames(input, output);
                     }
-                } else error = "Wrong command. Use \"--help\" for commands.\n";
+                } else {
+                    error = "Wrong command. Use \"--help\" for commands.\n";
+                    isError = true;
+                }
             }
         }
     }
@@ -170,7 +185,7 @@ public class CommandLineInterpreter {
             String[] files = dir.list(new FilenameFilter() {
                   @Override
                   public boolean accept(File dir, String name) {
-                      if (name.endsWith(".haml")) {
+                      if (name.endsWith(".haml") && (!name.startsWith("_"))) {
                           try {
                               return checkBasicAttributes(name);
                           } catch (IOException e) {
@@ -199,7 +214,7 @@ public class CommandLineInterpreter {
         BasicFileAttributes attrHaml = Files.readAttributes(fileHaml, BasicFileAttributes.class);
 
         String nameHtml = nameHaml.split("\\.")[0] + ".html";
-        File fileCheck = new File(dirPath + "/" + nameHtml);
+        File fileCheck = new File(DIRPATH + "/" + nameHtml);
 
         if (fileCheck.isFile()) {
             System.out.println("output file exists");
@@ -229,13 +244,15 @@ public class CommandLineInterpreter {
         String[] arr = command.split(":");
         File inputDirFile = new File(arr[0]);
         File outputDirFile = new File(arr[1]);
+        inputPathForDirectory = Paths.get(String.valueOf(inputDirFile)).toAbsolutePath();
 
-
-        if(inputDirFile.isFile() && inputDirFile.getPath().endsWith(".haml"))
+        if(arr[0].endsWith(".haml") && inputDirFile.isFile())
         {
+
             addToFileNames(inputDirFile.toString(), outputDirFile.toString());
         }
         else if(inputDirFile.isDirectory()){
+
             String[] files = inputDirFile.list(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
@@ -253,6 +270,7 @@ public class CommandLineInterpreter {
             toDirectory = true;
             addToFileNames(files);
             outputPathForDirectory = Paths.get(String.valueOf(outputDirFile)).toAbsolutePath();
+
 
         } else {
             error = "Something went wrong, the inputdirectory does not exist.";

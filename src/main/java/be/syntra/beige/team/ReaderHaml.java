@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * <h1>ReaderHaml</h1>
@@ -50,7 +51,7 @@ public class ReaderHaml {
 
     public static HamlData read() throws IOException{
 
-        String filePath = System.getProperty("user.dir");
+        Path filePath = CommandLineInterpreter.isToDirectory() ? CommandLineInterpreter.getInputPathForDirectory() : CommandLineInterpreter.getDIRPATH();
 
         HamlData myHamlData = null;
         BufferedReader br = null;
