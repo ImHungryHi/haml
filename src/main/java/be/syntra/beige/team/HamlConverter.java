@@ -327,29 +327,40 @@ public class HamlConverter {
     //
     public static String returnClassName(String input) {
         String className = null;
+        String str = inputZeroDepthForm(input);
         int startPos;
         int endPos = -1;
-        int currPos;
+        int firstDot = str.indexOf('.');
+        int firstBracket = str.indexOf('(');
+        int firstCurlyBrace = str.indexOf('{');
+        int firstSpace = str.indexOf(' ');
         String currChar = "";
 
-        // If the haml line represents a tag and . occurs, get the first occurrence of . and retrieve the className
-        if ((returnIsTag(input) && input.contains(".")) && !extractAttributeContent(input).contains(".") ){
+        // If the haml line represents a tag and
+        // . occurs before text or attributes,
+        // retrieve the classNames
+        if (
+                returnIsTag(input) &&
+                        firstDot > 0 &&
+                        (firstBracket < 0 || firstBracket > firstDot) &&
+                        (firstCurlyBrace < 0 || firstCurlyBrace > firstDot) &&
+                        (firstSpace < 0 || firstSpace > firstDot)
+            ){
             // get start position of class name
             startPos = input.indexOf(".") + 1;
-            // get end position of class name, can end by a ' ','#','(','<','>' or end of line (returns -1 in this case)
+            // get end position of class name, can end by a ' ','#','(','<','>','{' or end of line (returns -1 in this case)
             for (int i = startPos; i < input.length(); i++) {
                 currChar = input.substring(i, i + 1);
 
-                if (currChar.equals(" ") || currChar.equals("#") || currChar.equals("(") || currChar.equals("<") || currChar.equals(">")) {
+                if (currChar.equals(" ") || currChar.equals("#") || currChar.equals("(") || currChar.equals("<") || currChar.equals(">") || currChar.equals("{")) {
                     endPos = i;
                     break;
                 }
-                if (currChar.equals(".")){
-                    input= input.replace(currChar," ");
-                }
+
             }
             className = (endPos != -1) ? input.substring(startPos, endPos) : input.substring(startPos);
         }
+        className = className != null ? className.replace("."," ") : null;
         return className;
     }
 
