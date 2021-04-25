@@ -23,9 +23,10 @@ import java.util.ArrayList;
 
 public class CommandLineInterpreter {
     private static ArrayList<String> fileNames = new ArrayList<>();
-    private static final File dirPath = new File(System.getProperty("user.dir"));
+    private static final Path dirPath = Paths.get(System.getProperty("user.dir"));
     private boolean watch = false;
     private static boolean toDirectory = false;
+    private static Path inputPathDirectoryToWatch;
     private static Path outputPathForDirectory;
     private static String error = "Something went wrong. Check \"--help\" for commands";
 
@@ -62,12 +63,11 @@ public class CommandLineInterpreter {
             }
             else if (command.equals("--watch")) {
                 addToFileNames(filesToUpdate());
+                inputPathDirectoryToWatch = dirPath;
                 watch = true;
             }
-            else if(command.contains(":")) {
-                if(countDoublePoint(command)){
+            else if(command.contains(":") && countDoublePoint(command)) {
                     interpretDoublePoint(command);
-                } else error = "Wrong command, contains multiple \":\". Use \"--help\" for commands.\n";
             }
             else if(checkHamlInput(command)){
                     addToFileNames(command, null);
@@ -75,9 +75,21 @@ public class CommandLineInterpreter {
             else error = "Wrong command. Use \"--help\" for commands.\n";
         }
         else {
-            System.out.println("args length > 1" );
+        for(int i = 0; i<args.length; i++){
+            String command = args[i];
+            if(command.contains(":") && countDoublePoint(command)){
+                String[] arr = command.split(":");
+                String input = arr[0];
+                String output = arr[1];
+                if ((input.endsWith(".haml") && output.endsWith(".html"))) {
+                    addToFileNames(arr[0], arr[1]);
+                }
+            } else error = "Wrong command. Use \"--help\" for commands.\n";
+        }
         }
     }
+
+
    /*
    GETTERS
     */
@@ -86,8 +98,12 @@ public class CommandLineInterpreter {
         return fileNames;
     }
 
-
-
+    public static Path getInputPathDirectoryToWatch() {
+        return inputPathDirectoryToWatch;
+    }
+    public static Path getOutputPathForDirectory() {
+        return outputPathForDirectory;
+    }
 
 
     /*
