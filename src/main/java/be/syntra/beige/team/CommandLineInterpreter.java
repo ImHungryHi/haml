@@ -62,7 +62,7 @@ public class CommandLineInterpreter {
             }
             else if (command.equals("--watch")) {
                 addToFileNames(filesToUpdate());
-                // same as update => so get outdated files + setup watch service in directory.
+                watch = true;
             }
             else if(command.contains(":")) {
                 if(countDoublePoint(command)){
@@ -143,10 +143,10 @@ public class CommandLineInterpreter {
      * gives back a String[] with the haml files that need updating;
      **/
     public String[] filesToUpdate() {
-        System.out.println("looking for outdated files");
-        System.out.println("/n");
+
 
         File dir = new File(".");
+        System.out.println("looking for outdated files.\n");
         if (dir.isDirectory()) {
             String[] files = dir.list(new FilenameFilter() {
                   @Override
@@ -226,17 +226,15 @@ public class CommandLineInterpreter {
             if(files == null){
                 error = "No haml files detected.";
             }
-            else if(outputDirFile.isDirectory()) {
-                toDirectory = true;
-                addToFileNames(files);
-                outputPathForDirectory = Paths.get(String.valueOf(outputDirFile)).toAbsolutePath();
-            } else {
-                try{
-                    outputDirFile.mkdirs();
-                } catch (SecurityException e) {
-                   error = "Could not created directory.";
+            else if(!outputDirFile.isDirectory()) {
+                if(!outputDirFile.mkdir()){
+                    error = "Could not create output directory.";
                 }
             }
+            toDirectory = true;
+            addToFileNames(files);
+            outputPathForDirectory = Paths.get(String.valueOf(outputDirFile)).toAbsolutePath();
+
         } else {
             error = "Something went wrong, the inputdirectory does not exist.";
         }
