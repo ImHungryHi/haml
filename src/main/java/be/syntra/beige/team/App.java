@@ -21,27 +21,23 @@ public class App {
     public static void main(String[] args) throws IOException {
 
         CommandLineInterpreter interpreter = new CommandLineInterpreter();
+        interpreter.interpretCommand(args);
 
-        // Read command from console
-        //
-        // -- code here --
+        if(interpreter.getFileNames().size()>0) {
+            for (int i = 0; i < interpreter.getFileNames().size(); i += 2) {
+                if (interpreter.getFileNames().get(i + 1) == null) {
+                    compileFile(interpreter.getFileNames().get(i));
+                } else if (interpreter.getFileNames().get(i + 1) != null) {
+                    compileFile(interpreter.getFileNames().get(i), interpreter.getFileNames().get(i + 1));
+                }
+            }
+        }
+    }
 
-
-        // Construct ReaderHaml with parameters from console
-        // Params: .haml input filename ; .html output filename (optional)
-        // Temporary:
-        // the example.haml input file & example.html output file are hardcoded in ReaderHaml
-        //
-        ReaderHaml rh = new ReaderHaml();
+    public static void compileFile(String input) throws IOException {
+        ReaderHaml rh = new ReaderHaml(input);
         HamlData hd = rh.read();
-
-        // Temporary:
-        // Print hamlData to console
         System.out.println(hd);
-
-
-        // Validate HamlData object
-        //
         HamlValidation validator = HamlValidation.validateHaml(hd);
         if(validator.isValid()){
 
@@ -49,12 +45,34 @@ public class App {
             Html html = new Html(hd.getInputFileName(), hd.getOutputFileName());
             // Pass HamlDataElements to HtmlConverter
             HtmlConverter.convertToHtml(hd.getHamlDataElements(), html);
+            // Pass Html object to Writer
+            Writer writer = new Writer(html.getInputFileName(), html.getOutputFileName(), html.getHtmlElements());
+            writer.writeToOutputFile();
 
-            // Temporary:
-            // print Html to console
-            System.out.println(html);
+        }else{
 
+            // Parse the hamlErrors arraylist of the validator object
+            //
+            System.out.println("\nErrors found in " + hd.getInputFileName() + ":");
+            for(String s : validator.getHamlErrors()){
+                System.out.println(s);
+            }
+            System.out.println("=> " + hd.getInputFileName() + " not parsed!");
 
+        }
+    }
+
+    public static void compileFile(String input, String output) throws IOException {
+        ReaderHaml rh = new ReaderHaml(input, output);
+        HamlData hd = rh.read();
+        HamlValidation validator = HamlValidation.validateHaml(hd);
+        System.out.println(hd);
+        if(validator.isValid()){
+
+            // Create Html object
+            Html html = new Html(hd.getInputFileName(), hd.getOutputFileName());
+            // Pass HamlDataElements to HtmlConverter
+            HtmlConverter.convertToHtml(hd.getHamlDataElements(), html);
             // Pass Html object to Writer
             //
             Writer writer = new Writer(html.getInputFileName(), html.getOutputFileName(), html.getHtmlElements());
@@ -71,6 +89,10 @@ public class App {
             System.out.println("=> " + hd.getInputFileName() + " not parsed!");
 
         }
-
     }
+
+
+
+
+
 }

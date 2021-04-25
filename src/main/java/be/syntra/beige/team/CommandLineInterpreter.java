@@ -30,22 +30,43 @@ public class CommandLineInterpreter {
     private static Path outputPathForDirectory;
     private static String error = "Something went wrong. Check \"--help\" for commands";
 
-    public static void main(String[] args) {
-        CommandLineInterpreter interpreter = new CommandLineInterpreter();
+//    public static void main(String[] args) {
+//        CommandLineInterpreter interpreter = new CommandLineInterpreter();
+//
+////        interpreter.interpretCommand(args);
+////        if(fileNames.size() == 0){
+////            System.out.println(error);
+////        } else
+////            System.out.println("Printing files:");
+////
+////        for (int i = 0; i< fileNames.size();i++){
+////            System.out.println(fileNames.get(i));
+////        }
+//    }
 
-        interpreter.interpretCommand(args);
-        if(fileNames.size() == 0){
-            System.out.println(error);
-        } else
-            System.out.println("Printing files:");
 
-        for (int i = 0; i< fileNames.size();i++){
-            System.out.println(fileNames.get(i));
-        }
+   /*
+   GETTERS
+    */
+
+    public static ArrayList<String> getFileNames() {
+        return fileNames;
     }
 
+    public static Path getInputPathDirectoryToWatch() {
+        return inputPathDirectoryToWatch;
+    }
+    public static Path getOutputPathForDirectory() {
+        return outputPathForDirectory;
+    }
+
+
+    /*
+    OTHER METHODS
+     */
+
     /**
-     *
+     * @method interpretCommand
      * @param args
      * Sets the 'filesNames' arraylist with the names of the inputfiles and the names of their respective outputfiles
      */
@@ -67,56 +88,38 @@ public class CommandLineInterpreter {
                 watch = true;
             }
             else if(command.contains(":") && countDoublePoint(command)) {
-                    interpretDoublePoint(command);
+                interpretDoublePoint(command);
             }
-            else if(checkHamlInput(command)){
-                    addToFileNames(command, null);
+            else if(checkNameInputOutput(command)){
+                addToFileNames(command, null);
             }
             else error = "Wrong command. Use \"--help\" for commands.\n";
         }
         else {
-        for(int i = 0; i<args.length; i++){
-            String command = args[i];
-            if(command.contains(":") && countDoublePoint(command)){
-                String[] arr = command.split(":");
-                String input = arr[0];
-                String output = arr[1];
-                if ((input.endsWith(".haml") && output.endsWith(".html"))) {
-                    addToFileNames(arr[0], arr[1]);
-                }
-            } else error = "Wrong command. Use \"--help\" for commands.\n";
+            for(int i = 0; i<args.length; i++){
+                String command = args[i];
+                if(command.contains(":") && countDoublePoint(command)){
+                    String[] arr = command.split(":");
+                    String input = arr[0];
+                    String output = arr[1];
+                    if (checkNameInputOutput(input,output)) {
+                        addToFileNames(input, output);
+                    }
+                } else error = "Wrong command. Use \"--help\" for commands.\n";
+            }
         }
-        }
     }
-
-
-   /*
-   GETTERS
-    */
-
-    public static ArrayList<String> getFileNames() {
-        return fileNames;
-    }
-
-    public static Path getInputPathDirectoryToWatch() {
-        return inputPathDirectoryToWatch;
-    }
-    public static Path getOutputPathForDirectory() {
-        return outputPathForDirectory;
-    }
-
-
-    /*
-    CLASS METHODS
-     */
-
     /**
-     * @method filesToUpdate
-     * gives back a String[] with the haml files that need updating;
+     * @method checkHamlInput
+     * return boolean concerning input ends with .haml and output end with .html
      **/
-    public static boolean checkHamlInput(String input){
+    public static boolean checkNameInputOutput(String input){
         return input.endsWith(".haml");
     }
+    public static boolean checkNameInputOutput(String input, String output){
+        return input.endsWith(".haml") && output.endsWith(".html");
+    }
+
 
     /**
      * @method addToFileNames
@@ -135,8 +138,8 @@ public class CommandLineInterpreter {
     }
 
     /**
-     * @method filesToUpdate
-     * gives back a String[] with the haml files that need updating;
+     * @method showCommands
+     * gives explanation in console about commands.
      **/
     public void showCommands(){
         System.out.println("# Compiles index.haml to index.html.");
