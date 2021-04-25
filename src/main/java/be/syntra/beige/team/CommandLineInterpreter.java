@@ -26,10 +26,10 @@ public class CommandLineInterpreter {
     private static final File dirPath = new File(System.getProperty("user.dir"));
     private boolean watch = false;
     private static boolean toDirectory = false;
-    private Path outputPathForDirectory;
+    private static Path outputPathForDirectory;
     private static String error = "Something went wrong. Check \"--help\" for commands";
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         CommandLineInterpreter interpreter = new CommandLineInterpreter();
 
         interpreter.interpretCommand(args);
@@ -37,6 +37,7 @@ public class CommandLineInterpreter {
             System.out.println(error);
         } else
             System.out.println("Printing files:");
+
         for (int i = 0; i< fileNames.size();i++){
             System.out.println(fileNames.get(i));
         }
@@ -47,7 +48,7 @@ public class CommandLineInterpreter {
      * @param args
      * Sets the 'filesNames' arraylist with the names of the inputfiles and the names of their respective outputfiles
      */
-    public void interpretCommand(String[] args) throws IOException {
+    public void interpretCommand(String[] args) {
         if (args.length == 0) {
             error = "No arguments given. Use \"--help\" for commands.\n";
         }
@@ -57,10 +58,10 @@ public class CommandLineInterpreter {
                 showCommands();
             }
             else if (command.equals("--update")) {
-                addToFileNames(getFilesToUpdate());
+                addToFileNames(filesToUpdate());
             }
             else if (command.equals("--watch")) {
-                addToFileNames(getFilesToUpdate());
+                addToFileNames(filesToUpdate());
                 // same as update => so get outdated files + setup watch service in directory.
             }
             else if(command.contains(":")) {
@@ -68,23 +69,41 @@ public class CommandLineInterpreter {
                     interpretDoublePoint(command);
                 } else error = "Wrong command, contains multiple \":\". Use \"--help\" for commands.\n";
             }
-            else {
-                    fileNames.add(command);
-                    fileNames.add(null); //write to console;
+            else if(checkHamlInput(command)){
+                    addToFileNames(command, null);
             }
-
-        } else {
+            else error = "Wrong command. Use \"--help\" for commands.\n";
+        }
+        else {
             System.out.println("args length > 1" );
         }
     }
    /*
-   GETTER
+   GETTERS
     */
+
     public static ArrayList<String> getFileNames() {
         return fileNames;
     }
 
+
+
+
+
+    /*
+    CLASS METHODS
+     */
+
     /**
+     * @method filesToUpdate
+     * gives back a String[] with the haml files that need updating;
+     **/
+    public static boolean checkHamlInput(String input){
+        return input.endsWith(".haml");
+    }
+
+    /**
+     * @method addToFileNames
     Adds the files that need to be compiled to arrayList FileNames so that our app can get the list.
      **/
     public static void addToFileNames(String[] arr){
@@ -99,7 +118,10 @@ public class CommandLineInterpreter {
         fileNames.add(output);
     }
 
-
+    /**
+     * @method filesToUpdate
+     * gives back a String[] with the haml files that need updating;
+     **/
     public void showCommands(){
         System.out.println("# Compiles index.haml to index.html.");
         System.out.println("$ java -jar HamlIt.jar index.haml:index.html \n");
@@ -117,9 +139,10 @@ public class CommandLineInterpreter {
 
 
     /**
-    gives back a String[] with the haml files that need updating;
+     * @method filesToUpdate
+     * gives back a String[] with the haml files that need updating;
      **/
-    public String[] getFilesToUpdate() {
+    public String[] filesToUpdate() {
         System.out.println("looking for outdated files");
         System.out.println("/n");
 
@@ -145,10 +168,12 @@ public class CommandLineInterpreter {
         return null;
     }
 
+
      /**
-     checks which files are outdated based on time
-     of modification in correspondence with their respective outputfiles.
-      When haml file has no corresponding .html file, its is included in outdatedlist and will be compiled.
+      * @method checkBasicAttributes
+      * checks which files are outdated based on time
+      * of modification in correspondence with their respective outputfiles.
+      * When haml file has no corresponding .html file, its is included in outdatedlist and will be compiled.
      **/
     public boolean checkBasicAttributes(String nameHaml) throws IOException {
         Path fileHaml = Paths.get(nameHaml);
@@ -171,18 +196,21 @@ public class CommandLineInterpreter {
 
 
     /**
-     *
+     * @method interpretDoublePoint
      * @param command
      * interprets to command with ":". Checks if command is about directory to directory or about file to file;
-     * In the first case we put ToDirectory to true to signal app that he needs to use outputPathForDirectory as outputpath.
+     * In the case of directory to directory, we check the existence of the input directory and check if the directory has .haml files.
+     * If so we check the existence of the output Directory and try to make one when the directory does not exist.
+     * Then we put ToDirectory to true to signal app that he needs to use outputPathForDirectory as outputpath.
+     *
+     * When the commands asks compiling file.haml to file.html, we check if the first part of the command (inputDirFile) is a file and if it ends with .haml.
+     * We can then give the input- and outputfilename to the arraylist. Checks concerning the outputfile happen in Writer class.
      */
-
-    //NEEDS FINETUNING
-
-    public void interpretDoublePoint(String command) throws IOException {
+    public void interpretDoublePoint(String command) {
         String[] arr = command.split(":");
         File inputDirFile = new File(arr[0]);
         File outputDirFile = new File(arr[1]);
+
 
         if(inputDirFile.isFile() && inputDirFile.getPath().endsWith(".haml"))
         {
@@ -201,11 +229,24 @@ public class CommandLineInterpreter {
             else if(outputDirFile.isDirectory()) {
                 toDirectory = true;
                 addToFileNames(files);
-            } else
-                error = "Output directory is not correct";
+                outputPathForDirectory = Paths.get(String.valueOf(outputDirFile)).toAbsolutePath();
+            } else {
+                try{
+                    outputDirFile.mkdirs();
+                } catch (SecurityException e) {
+                   error = "Could not created directory.";
+                }
+            }
+        } else {
+            error = "Something went wrong, the inputdirectory does not exist.";
         }
     }
 
+
+    /**
+     * @method countDoublePoint
+     * counts the number of ":" in one elements of String[] args;
+     **/
     public boolean countDoublePoint(String command){
         int count = 0;
         for(int i = 0; i<command.length(); i++){
