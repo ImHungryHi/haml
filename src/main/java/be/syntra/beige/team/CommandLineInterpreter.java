@@ -220,7 +220,7 @@ public class CommandLineInterpreter {
             String[] files = inputDirFile.list(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
-                    return name.endsWith(".haml");
+                    return (name.endsWith(".haml") && (!name.startsWith("_")));
                 }
             });
             if(files == null){
