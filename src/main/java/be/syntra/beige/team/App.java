@@ -50,9 +50,10 @@ public class App {
                     for(WatchEvent<?> event : key.pollEvents()){
                         WatchEvent<Path> ev = (WatchEvent<Path>)event;
                         Path fileName = ev.context();
-                        System.out.println("Compiling " + path);
+                        System.out.println(fileName);
+//                        System.out.println("Compiling " + path);
                         String[] arr = fileName.toString().split("\\.");
-                        compileFile(path.toString(),arr[0] + ".html");
+                        compileFile(fileName.toString(),arr[0] + ".html");
                     }
                     boolean valid = key.reset();
                     if(!valid){
