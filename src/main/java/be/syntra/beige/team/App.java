@@ -41,14 +41,22 @@ public class App {
                 for(;;){
                     WatchKey key;
                     try {
-                        System.out.println("Watching directory " + path);
+                        System.out.println("Watching...");
                         key = watcher.take();
                     } catch (InterruptedException e){
                         e.printStackTrace();
                         return;
                     }
                     for(WatchEvent<?> event : key.pollEvents()){
-                        Path fileName = (Path) event.context();
+                        WatchEvent<Path> ev = (WatchEvent<Path>)event;
+                        Path fileName = ev.context();
+                        System.out.println("Compiling " + path);
+                        String[] arr = fileName.toString().split("\\.");
+                        compileFile(path.toString(),arr[0] + ".html");
+                    }
+                    boolean valid = key.reset();
+                    if(!valid){
+                        break;
                     }
                 }
             }
@@ -109,9 +117,4 @@ public class App {
 
         }
     }
-
-
-
-
-
 }
