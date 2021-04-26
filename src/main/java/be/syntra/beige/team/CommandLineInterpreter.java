@@ -25,6 +25,7 @@ public class CommandLineInterpreter {
     private static ArrayList<String> fileNames = new ArrayList<>();
     private static final Path DIRPATH = Paths.get(System.getProperty("user.dir"));
     private boolean watch = false;
+    private boolean update = false;
     private static boolean toDirectory = false;
     private static Path inputPathDirectoryToWatch;
     private static Path inputPathForDirectory;
@@ -72,7 +73,9 @@ public class CommandLineInterpreter {
         return watch;
     }
 
-
+    public boolean isUpdate() {
+        return update;
+    }
     /*
     OTHER METHODS
      */
@@ -93,10 +96,12 @@ public class CommandLineInterpreter {
             }
             else if (command.equals("--update")) {
                 addToFileNames(filesToUpdate());
+                update = true;
             }
             else if (command.equals("--watch")) {
                 addToFileNames(filesToUpdate());
                 inputPathDirectoryToWatch = DIRPATH;
+                update = true;
                 watch = true;
             }
             else if(command.contains(":") && countDoublePoint(command)) {
@@ -291,5 +296,6 @@ public class CommandLineInterpreter {
         }
         return count == 1 ? true : false;
     }
+
 }
 

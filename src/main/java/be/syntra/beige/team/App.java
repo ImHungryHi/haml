@@ -1,7 +1,9 @@
 package be.syntra.beige.team;
 
 import java.io.*;
+import java.nio.file.*;
 
+import static java.nio.file.StandardWatchEventKinds.*;
 /**
  * <h1>App</h1>
  * Read command from console.
@@ -31,7 +33,25 @@ public class App {
                     compileFile(interpreter.getFileNames().get(i), interpreter.getFileNames().get(i + 1));
                 }
             }
-            System.out.println("Compiling is done.");
+            System.out.println(interpreter.isUpdate() ? "Updating is done!" : "Compiling is done.");
+            if(interpreter.isWatch()){
+                Path path = CommandLineInterpreter.getInputPathDirectoryToWatch();
+                WatchService watcher = path.getFileSystem().newWatchService();
+                path.register(watcher, ENTRY_MODIFY);
+                for(;;){
+                    WatchKey key;
+                    try {
+                        System.out.println("Watching directory " + path);
+                        key = watcher.take();
+                    } catch (InterruptedException e){
+                        e.printStackTrace();
+                        return;
+                    }
+                    for(WatchEvent<?> event : key.pollEvents()){
+                        Path fileName = (Path) event.context();
+                    }
+                }
+            }
         } else System.out.println(interpreter.getError());
     }
 
