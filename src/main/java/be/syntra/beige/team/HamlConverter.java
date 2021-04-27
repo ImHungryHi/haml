@@ -600,7 +600,7 @@ public class HamlConverter {
 
             }
 
-            if (currEl.getDepth() == currDepth + 1) {
+            if (currEl.getDepth() == currDepth + 1 && i-1 >= 0) {
 
                 // The parent element is the previous hamlDataElement
                 parentEl = originalElements.get(i-1);
@@ -624,7 +624,15 @@ public class HamlConverter {
                 }
 
                 // Add the current element to its parent
-                parents.get(parents.size()-1).addChild(currEl);
+                if(parents.size() != 0) {
+                    parents.get(parents.size() - 1).addChild(currEl);
+                }else{
+                    parentEl = null;
+                    parents.add(currEl);
+                    if(currEl.getDepth() == 0){
+                        nestedElements.add(currEl);
+                    }
+                }
 
                 // Change the current depth with the amount of levels it went up
                 currDepth = currDepth - depthChange;
