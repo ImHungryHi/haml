@@ -107,14 +107,24 @@ public class HamlConverter {
     // Return the id name
     //
     public static String returnIdName(String input) {
+        String str = inputZeroDepthForm(input);
         String id = null;
         int startPos;
         int endPos = -1;
-        int currPos;
+        int firstHash = str.indexOf('#');
+        int firstBracket = str.indexOf('(');
+        int firstCurlyBrace = str.indexOf('{');
+        int firstSpace = str.indexOf(' ');
         String currChar = "";
 
         // If the haml line represents a tag and # occurs, get the first occurrence of # and retrieve the idName
-        if (returnIsTag(input) && input.contains("#")) {
+        if (
+                returnIsTag(input) &&
+                firstHash >= 0 &&
+                (firstBracket < 0 || firstBracket > firstHash) &&
+                (firstCurlyBrace < 0 || firstCurlyBrace > firstHash) &&
+                (firstSpace < 0 || firstSpace > firstHash)
+        ) {
             // get start position of id name
             startPos = input.indexOf("#") + 1;
             // get end position of id name, can end by a ' ','.','(','<','>','{' or end of line (returns -1 in this case)
