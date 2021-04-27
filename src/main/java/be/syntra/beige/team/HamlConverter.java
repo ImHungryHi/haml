@@ -341,7 +341,7 @@ public class HamlConverter {
         // retrieve the classNames
         if (
                 returnIsTag(input) &&
-                        firstDot > 0 &&
+                        firstDot >= 0 &&
                         (firstBracket < 0 || firstBracket > firstDot) &&
                         (firstCurlyBrace < 0 || firstCurlyBrace > firstDot) &&
                         (firstSpace < 0 || firstSpace > firstDot)
