@@ -7,6 +7,8 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+
 
 /** interpreter of command lines:
 
@@ -25,7 +27,7 @@ public class CommandLineInterpreter {
     private static ArrayList<String> fileNames = new ArrayList<>();
     private static final Path DIRPATH = Paths.get(System.getProperty("user.dir"));
     private boolean watch = false;
-    private boolean update = false;
+    private static boolean update = false;
     private static boolean toDirectory = false;
     private static Path inputPathDirectoryToWatch;
     private static Path inputPathForDirectory;
@@ -73,7 +75,7 @@ public class CommandLineInterpreter {
         return watch;
     }
 
-    public boolean isUpdate() {
+    public static boolean isUpdate() {
         return update;
     }
     /*
@@ -87,6 +89,7 @@ public class CommandLineInterpreter {
      */
     public void interpretCommand(String[] args) {
         if (args.length == 0) {
+            isError = true;
             error = "No arguments given. Use \"--help\" for commands.\n";
         }
         else if (args.length == 1) {
@@ -131,6 +134,7 @@ public class CommandLineInterpreter {
     }
     /**
      * @method checkHamlInput
+     * @param input
      * return boolean concerning input ends with .haml and output end with .html
      **/
     public static boolean checkNameInputOutput(String input){
@@ -203,8 +207,10 @@ public class CommandLineInterpreter {
             );
             return files;
         }
-        System.out.println(error);
-        return null;
+        else {
+            System.out.println(error);
+            return null;
+        }
     }
 
 
@@ -222,14 +228,12 @@ public class CommandLineInterpreter {
         File fileCheck = new File(DIRPATH + "/" + nameHtml);
 
         if (fileCheck.isFile()) {
-            System.out.println("output file exists");
             Path fileHtml = Paths.get(nameHtml);
             BasicFileAttributes attrHtml = Files.readAttributes(fileHtml, BasicFileAttributes.class);
 
             return attrHaml.lastModifiedTime().compareTo(attrHtml.lastModifiedTime()) == 1 ? true : false;
-            } else {
-            return true;
             }
+        else { return true; }
 
         }
 
@@ -297,5 +301,9 @@ public class CommandLineInterpreter {
         return count == 1 ? true : false;
     }
 
+    public void watchDirectory(Path path){
+
+
+    }
 }
 

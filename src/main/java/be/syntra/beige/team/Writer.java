@@ -38,7 +38,7 @@ public class Writer {
         try {
             File outputFile = new File(outputFilePath + "/" + outputFileName);
             if (outputFile.createNewFile()) {
-                System.out.println("File created: " + outputFile.getName());
+                System.out.println(CommandLineInterpreter.isUpdate()? "File updated: " + outputFile.getName() : "File created: " + outputFile.getName());
             } else {
                 // Delete existing file & recreate it
                 if (outputFile.delete()) {

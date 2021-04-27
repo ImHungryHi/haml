@@ -25,7 +25,7 @@ public class App {
         CommandLineInterpreter interpreter = new CommandLineInterpreter();
         interpreter.interpretCommand(args);
 
-        if(!interpreter.isIsError() && interpreter.getFileNames().size()>0) {
+        if((!interpreter.isIsError() && interpreter.getFileNames().size()>0) || interpreter.isWatch()) {
             for (int i = 0; i < interpreter.getFileNames().size(); i += 2) {
                 if (interpreter.getFileNames().get(i + 1) == null) {
                     compileFile(interpreter.getFileNames().get(i));
@@ -36,34 +36,42 @@ public class App {
             System.out.println(interpreter.isUpdate() ? "Updating is done!" : "Compiling is done.");
             if(interpreter.isWatch()){
                 Path path = CommandLineInterpreter.getInputPathDirectoryToWatch();
-                WatchService watcher = path.getFileSystem().newWatchService();
-                path.register(watcher, ENTRY_MODIFY);
-                for(;;){
+                try{
+                    WatchService watcher = path.getFileSystem().newWatchService();
+                    path.register(watcher, ENTRY_MODIFY);
+                    System.out.println("Watching directory...");
                     WatchKey key;
-                    try {
-                        System.out.println("Watching...");
-                        key = watcher.take();
-                    } catch (InterruptedException e){
-                        e.printStackTrace();
-                        return;
+                    while((key = watcher.take()) != null){
+
+                        for(WatchEvent<?> event : key.pollEvents()){
+                            WatchEvent.Kind<?> kind = event.kind();
+
+                            WatchEvent<Path> ev = (WatchEvent<Path>)event;
+                            Path fileName = ev.context();
+
+                            if(kind == ENTRY_MODIFY && fileName.toString().endsWith(".haml")){
+                                String[] arr = fileName.toString().split("\\.");
+                                System.out.println(fileName);
+                                compileFile(fileName.toString(),arr[0] + ".html");
+                            }
+                        }
+                        boolean valid = key.reset();
+                        if(!valid){
+                            break;
+                        }
                     }
-                    for(WatchEvent<?> event : key.pollEvents()){
-                        WatchEvent<Path> ev = (WatchEvent<Path>)event;
-                        Path fileName = ev.context();
-                        System.out.println(fileName);
-//                        System.out.println("Compiling " + path);
-                        String[] arr = fileName.toString().split("\\.");
-                        compileFile(fileName.toString(),arr[0] + ".html");
-                    }
-                    boolean valid = key.reset();
-                    if(!valid){
-                        break;
-                    }
+                } catch(IOException | InterruptedException e){
+                    System.out.println(e + ":" + "watching failed");
                 }
             }
         } else System.out.println(interpreter.getError());
     }
 
+    /**
+     *
+     * @param input
+     * @throws IOException
+     */
     public static void compileFile(String input) throws IOException {
         ReaderHaml rh = new ReaderHaml(input);
         HamlData hd = rh.read();
@@ -91,6 +99,12 @@ public class App {
         }
     }
 
+    /**
+     *
+     * @param input
+     * @param output
+     * @throws IOException
+     */
     public static void compileFile(String input, String output) throws IOException {
         ReaderHaml rh = new ReaderHaml(input, output);
         HamlData hd = rh.read();
