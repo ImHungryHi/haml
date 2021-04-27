@@ -83,7 +83,7 @@ public class CommandLineInterpreter {
      */
 
     /**
-     * @method interpretCommand
+     *
      * @param args
      * Sets the 'filesNames' arraylist with the names of the inputfiles and the names of their respective outputfiles
      */
@@ -132,23 +132,31 @@ public class CommandLineInterpreter {
             }
         }
     }
+
     /**
-     * @method checkHamlInput
+     *
      * @param input
-     * return boolean concerning input ends with .haml and output end with .html
-     **/
+     * @return true if input ends with ".haml"
+     */
     public static boolean checkNameInputOutput(String input){
         return input.endsWith(".haml");
     }
+
+    /**
+     *
+     * @param input
+     * @param output
+     * @return boolean if files are correct type.
+     */
     public static boolean checkNameInputOutput(String input, String output){
         return input.endsWith(".haml") && output.endsWith(".html");
     }
 
 
     /**
-     * @method addToFileNames
-    Adds the files that need to be compiled to arrayList FileNames so that our app can get the list.
-     **/
+     *
+     * @param arr
+     */
     public static void addToFileNames(String[] arr){
         for(String s : arr){
             fileNames.add(s);
@@ -156,15 +164,20 @@ public class CommandLineInterpreter {
             fileNames.add(split);
         }
     }
+
+    /**
+     *
+     * @param input
+     * @param output
+     */
     public static void addToFileNames(String input, String output){
         fileNames.add(input);
         fileNames.add(output);
     }
 
     /**
-     * @method showCommands
-     * gives explanation in console about commands.
-     **/
+     *  Prints commands to console
+     */
     public void showCommands(){
         System.out.println("# Compiles index.haml to index.html.");
         System.out.println("$ java -jar HamlIt.jar index.haml:index.html \n");
@@ -182,9 +195,9 @@ public class CommandLineInterpreter {
 
 
     /**
-     * @method filesToUpdate
-     * gives back a String[] with the haml files that need updating;
-     **/
+     *
+     * @return String[] with outdated .haml files
+     */
     public String[] filesToUpdate() {
 
 
@@ -214,12 +227,12 @@ public class CommandLineInterpreter {
     }
 
 
-     /**
-      * @method checkBasicAttributes
-      * checks which files are outdated based on time
-      * of modification in correspondence with their respective outputfiles.
-      * When haml file has no corresponding .html file, its is included in outdatedlist and will be compiled.
-     **/
+    /**
+     *
+     * @param nameHaml
+     * @return outdated .haml files
+     * @throws IOException
+     */
     public boolean checkBasicAttributes(String nameHaml) throws IOException {
         Path fileHaml = Paths.get(nameHaml);
         BasicFileAttributes attrHaml = Files.readAttributes(fileHaml, BasicFileAttributes.class);
@@ -239,15 +252,15 @@ public class CommandLineInterpreter {
 
 
     /**
-     * @method interpretDoublePoint
-     * @param command
      * interprets to command with ":". Checks if command is about directory to directory or about file to file;
      * In the case of directory to directory, we check the existence of the input directory and check if the directory has .haml files.
      * If so we check the existence of the output Directory and try to make one when the directory does not exist.
-     * Then we put ToDirectory to true to signal app that he needs to use outputPathForDirectory as outputpath.
+     *Then we put ToDirectory to true to signal app that he needs to use outputPathForDirectory as outputpath.
      *
      * When the commands asks compiling file.haml to file.html, we check if the first part of the command (inputDirFile) is a file and if it ends with .haml.
      * We can then give the input- and outputfilename to the arraylist. Checks concerning the outputfile happen in Writer class.
+     * @param command
+     *
      */
     public void interpretDoublePoint(String command) {
         String[] arr = command.split(":");
@@ -288,9 +301,10 @@ public class CommandLineInterpreter {
 
 
     /**
-     * @method countDoublePoint
-     * counts the number of ":" in one elements of String[] args;
-     **/
+     *
+     * @param command
+     * @return true if command contains 1 ":";
+     */
     public boolean countDoublePoint(String command){
         int count = 0;
         for(int i = 0; i<command.length(); i++){
@@ -299,11 +313,6 @@ public class CommandLineInterpreter {
             }
         }
         return count == 1 ? true : false;
-    }
-
-    public void watchDirectory(Path path){
-
-
     }
 }
 

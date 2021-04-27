@@ -68,8 +68,10 @@ public class App {
     }
 
     /**
-     *
-     * @param input
+     *  First the method will set up a reader for the .haml inputfile. The reader will read the file and pushes every line to
+     *  the haml converter so we can create a hamlDataElement for each line of the inputfile. The htmlconverter parses every hamlDataElement to a line of usable HTML code.
+     *  When no outputfile was given, the writer prints the result to console.
+     * @param input filename of inputfile
      * @throws IOException
      */
     public static void compileFile(String input) throws IOException {
@@ -100,9 +102,11 @@ public class App {
     }
 
     /**
-     *
-     * @param input
-     * @param output
+     * First the method will set up a reader for the .haml inputfile. The reader will read the file and pushes every line to
+     * the haml converter so we can create a hamlDataElement for each line of the inputfile. The htmlconverter parses every hamlDataElement to a line of usable HTML code.
+     * The writer creates (when non-existing) or modifies the given outputfile.
+     * @param input filename of inputfile
+     * @param output filename of outputfile
      * @throws IOException
      */
     public static void compileFile(String input, String output) throws IOException {
