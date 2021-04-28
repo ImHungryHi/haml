@@ -24,47 +24,51 @@ public class App {
 
         CommandLineInterpreter interpreter = new CommandLineInterpreter();
         interpreter.interpretCommand(args);
-
-        if((!interpreter.isIsError() && interpreter.getFileNames().size()>0) || interpreter.isWatch()) {
-            for (int i = 0; i < interpreter.getFileNames().size(); i += 2) {
-                if (interpreter.getFileNames().get(i + 1) == null) {
-                    compileFile(interpreter.getFileNames().get(i));
-                } else if (interpreter.getFileNames().get(i + 1) != null) {
-                    compileFile(interpreter.getFileNames().get(i), interpreter.getFileNames().get(i + 1));
+        try {
+            if((!interpreter.isIsError() && interpreter.getFileNames().size()>0) || interpreter.isWatch()) {
+                for (int i = 0; i < interpreter.getFileNames().size(); i += 2) {
+                    if (interpreter.getFileNames().get(i + 1) == null) {
+                        compileFile(interpreter.getFileNames().get(i));
+                    } else if (interpreter.getFileNames().get(i + 1) != null) {
+                        compileFile(interpreter.getFileNames().get(i), interpreter.getFileNames().get(i + 1));
+                    }
                 }
-            }
-            System.out.println(interpreter.isUpdate() ? "Updating is done!" : "Compiling is done.");
-            if(interpreter.isWatch()){
-                Path path = CommandLineInterpreter.getInputPathDirectoryToWatch();
-                try{
-                    WatchService watcher = path.getFileSystem().newWatchService();
-                    path.register(watcher, ENTRY_MODIFY);
-                    System.out.println("Watching directory...");
-                    WatchKey key;
-                    while((key = watcher.take()) != null){
+                System.out.println(interpreter.isUpdate() ? "Updating is done!" : "Compiling is done.");
+                if(interpreter.isWatch()){
+                    Path path = CommandLineInterpreter.getInputPathDirectoryToWatch();
+                    try{
+                        WatchService watcher = path.getFileSystem().newWatchService();
+                        path.register(watcher, ENTRY_MODIFY);
+                        System.out.println("Watching directory...");
+                        WatchKey key;
+                        while((key = watcher.take()) != null){
 
-                        for(WatchEvent<?> event : key.pollEvents()){
-                            WatchEvent.Kind<?> kind = event.kind();
+                            for(WatchEvent<?> event : key.pollEvents()){
+                                WatchEvent.Kind<?> kind = event.kind();
 
-                            WatchEvent<Path> ev = (WatchEvent<Path>)event;
-                            Path fileName = ev.context();
+                                WatchEvent<Path> ev = (WatchEvent<Path>)event;
+                                Path fileName = ev.context();
 
-                            if(kind == ENTRY_MODIFY && fileName.toString().endsWith(".haml")){
-                                String[] arr = fileName.toString().split("\\.");
-                                System.out.println(fileName);
-                                compileFile(fileName.toString(),arr[0] + ".html");
+                                if(kind == ENTRY_MODIFY && fileName.toString().endsWith(".haml")){
+                                    String[] arr = fileName.toString().split("\\.");
+                                    System.out.println(fileName);
+                                    compileFile(fileName.toString(),arr[0] + ".html");
+                                }
+                            }
+                            boolean valid = key.reset();
+                            if(!valid){
+                                break;
                             }
                         }
-                        boolean valid = key.reset();
-                        if(!valid){
-                            break;
-                        }
+                    } catch(IOException | InterruptedException e){
+                        System.out.println(e + ":" + "watching failed");
                     }
-                } catch(IOException | InterruptedException e){
-                    System.out.println(e + ":" + "watching failed");
                 }
-            }
-        } else System.out.println(interpreter.getError());
+            } else System.out.println(interpreter.getError());
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     /**
