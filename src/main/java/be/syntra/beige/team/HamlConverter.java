@@ -131,14 +131,24 @@ public class HamlConverter {
      * @return the id name
      */
     public static String returnIdName(String input) {
+        String str = inputZeroDepthForm(input);
         String id = null;
         int startPos;
         int endPos = -1;
-        int currPos;
+        int firstHash = str.indexOf('#');
+        int firstBracket = str.indexOf('(');
+        int firstCurlyBrace = str.indexOf('{');
+        int firstSpace = str.indexOf(' ');
         String currChar = "";
 
         // If the haml line represents a tag and # occurs, get the first occurrence of # and retrieve the idName
-        if (returnIsTag(input) && input.contains("#")) {
+        if (
+                returnIsTag(input) &&
+                firstHash >= 0 &&
+                (firstBracket < 0 || firstBracket > firstHash) &&
+                (firstCurlyBrace < 0 || firstCurlyBrace > firstHash) &&
+                (firstSpace < 0 || firstSpace > firstHash)
+        ) {
             // get start position of id name
             startPos = input.indexOf("#") + 1;
             // get end position of id name, can end by a ' ','.','(','<','>','{' or end of line (returns -1 in this case)
@@ -384,7 +394,7 @@ public class HamlConverter {
         // retrieve the classNames
         if (
                 returnIsTag(input) &&
-                        firstDot > 0 &&
+                        firstDot >= 0 &&
                         (firstBracket < 0 || firstBracket > firstDot) &&
                         (firstCurlyBrace < 0 || firstCurlyBrace > firstDot) &&
                         (firstSpace < 0 || firstSpace > firstDot)
@@ -645,7 +655,7 @@ public class HamlConverter {
 
             }
 
-            if (currEl.getDepth() == currDepth + 1) {
+            if (currEl.getDepth() == currDepth + 1 && i-1 >= 0) {
 
                 // The parent element is the previous hamlDataElement
                 parentEl = originalElements.get(i-1);
@@ -669,7 +679,15 @@ public class HamlConverter {
                 }
 
                 // Add the current element to its parent
-                parents.get(parents.size()-1).addChild(currEl);
+                if(parents.size() != 0) {
+                    parents.get(parents.size() - 1).addChild(currEl);
+                }else{
+                    parentEl = null;
+                    parents.add(currEl);
+                    if(currEl.getDepth() == 0){
+                        nestedElements.add(currEl);
+                    }
+                }
 
                 // Change the current depth with the amount of levels it went up
                 currDepth = currDepth - depthChange;
