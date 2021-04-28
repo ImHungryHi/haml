@@ -1,0 +1,79 @@
+%html(style="scroll-behavior:smooth;")
+me-invalid-nesting
+  %head
+    %meta
+    %link{:rel => "stylesheet", :href => "https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"}
+    %link{:rel => "stylesheet", :href => "https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"}
+    %link{:rel => "stylesheet", :href => "https://use.fontawesome.com/releases/v5.15.3/css/all.css"}
+    %link{:rel => "preconnect", :href => "https://fonts.gstatic.com"}
+    %link{:href => "https://fonts.googleapis.com/css2?family=Lobster&display=swap", :rel => "stylesheet"}
+    %link{:href => "https://fonts.googleapis.com/css2?family=Open+Sans&display=swap", :rel => "stylesheet"}
+    %script(src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js")
+    %script(src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js")
+    %script(src="https://samosh.rocks/counter.js")
+  %body(style="font-family:"Open Sans";")
+    %header
+    me-also-invalid-nesting
+    %main
+      #intro.center(style="height:100vh;position:relative;")
+        %(style="position:absolute;top:50%;left:50%;width:80%;transform:translate(-50%,-50%);")
+          %h1.animate__animated.animate__heartBeat(style="margin-top:0; font-family:"Lobster";") HamlIt!
+          %img.animate__animated.animate__fadeInLeft.animate__delay-1s(src="https://samosh.rocks/Picture_2.png")
+          %img.animate__animated.animate__zoomIn.animate__delay-1s(src="https://samosh.rocks/java-eps-vector-logo.png", style="max-width:200px;")
+          %img.animate__animated.animate__fadeInRight.animate__delay-1s(src="https://samosh.rocks/html5-online-connection.png", style="max-width:232px;)
+          %h2.animate__animated.animate__bounceInUp.animate__delay-2s(style="font-size: 1.6em; font-family:"Open Sans";") a Beige Team solution
+        %a.animate__animated.animate__fadeInDown.animate__delay-3s{:style => "position:absolute;bottom:30px;", :href => "#infographic"}
+          %i.fa.fa-chevron-down.fa-2x
+      #infographic.center.scrollspy(style="height:100vh;position:relative;background-color:black;color:white;")
+        .container(style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);")
+          %h3.center(style="color:lightgray;margin-bottom:60px;") Some data
+          .row(style="margin-bottom:30px;")
+            .counter.col.s4
+              %a(href="#infographic")
+                %i.fa.fa-code.fa-2x
+                %h5#count-number.timer.count-title{:data-to => "2000", :data-speed => "1500"}
+                %p.count-text lines of code
+            .counter.col.s4
+            me-too-also-invalid-nesting
+              %a(href="#infographic")
+                %i.fab.fa-java.fa-2x
+                %h5#count-number.timer.count-title{:data-to => "366", :data-speed => "1500"}
+                %p.count-text cups of coffee
+            .counter.col.s4
+              %a(href="#infographic")
+                %i.fa.fa-beer.fa-2x
+                %h5#count-number.timer.count-title{:data-to => "66", :data-speed => "1500"}
+                %p.count-text beers
+          .row(style="margin-bottom:30px;")
+            .counter.col.s4
+              %a(href="#infographic")
+                %i.fas.fa-head-side-mask.fa-2x
+                %h5#count-number.timer.count-title{:data-to => "26", :data-speed => "1500"}
+                %p.count-text sets of head masks
+            .counter.col.s4
+              %a(href="#infographic")
+              me-again-invalid-nesting
+                %i.fas.fa-hands-wash.fa-2x
+                %h5#count-number.timer.count-title{:data-to => "172", :data-speed => "1500"}
+                %p.count-text disinfections
+            .counter.col.s4
+              %a(href="#infographic")
+                %i.fas.fa-virus.fa-2x
+                %h5#count-number.timer.count-title{:data-to => "0", :data-speed => "1500"}
+                %p.count-text covid-infected
+          .row(style="margin-bottom:30px;")
+            .counter.col.s4
+              %a(href="#infographic")
+                %i.fas.fa-brain.fa-2x
+                %h5#count-number.timer.count-title{:data-to => "4", :data-speed => "1500"}
+                %p.count-text developers
+            .counter.col.s4
+              %a(href="#infographic")
+                %i.fas.fa-calendar-alt.fa-2x
+                %h5#count-number.timer.count-title{:data-to => "36", :data-speed => "1500"}
+                %p.count-text working days
+            .counter.col.s4
+              %a(href="#infographic")
+                %i.fas.fa-coins.fa-2x
+                %h5#count-number.timer.count-title{:data-to => "92160", :data-speed => "4500"}
+                %p.count-text invoice for Bart
