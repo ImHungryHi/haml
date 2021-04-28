@@ -1,0 +1,76 @@
+%html
+  %head
+  %body
+    %h1 Examples
+    %h2 Basic element with id,class and attributes
+      %tagname#id.class(attr1='value1' attr2='value2') Contents
+    %h2 Fake tag
+      %foo bar
+    %h2 Nesting examples
+      %foo text 1
+        %bar
+          text 2
+      %foo
+        text 3
+      %bar
+        text 4
+      %foo text 5
+      %foo text 6
+    %h2 Implied div examples
+      % text 1
+      #mydiv Mydiv text
+      .myclass Myclass text
+      %
+        text in div
+    %h2 Id identifier examples
+      #divId
+        %p#pId
+    %h2 Class identifier examples
+      .myClass
+        %p.myP paragraph text
+        %p.myP.alert.center alert message
+    %h2 Attributes examples
+      %foo(attribute="value") text
+      %(attribute="value") text
+      %p.aclass(attribute="value") text
+    %h2 Explicit html examples
+      %p
+        <div id="blah">Blah!</div>
+    %h2 Escaping example
+      %p
+        \%title
+    %h2 Empty tags examples
+      %br
+      %img(src="smiley.jpg")
+    %h2 Html comments example
+      %peanutbutterjelly
+        / This is the peanutbutterjelly element
+        I like sandwiches!
+      /
+        %p This doesn't render...
+        %div
+          %h1 Because it's commented out!
+    %h2 Haml comments example
+      -# This is a comment
+      -#
+        This won't be displayed
+          Nor will this
+            Nor will this
+    %h2 Whitespace removal examples
+      %p Wsrm in blockquote
+      %blockquote<
+        %div
+          Foo!
+      %p Wsrm for imgs
+        %img
+        %img>
+        %img
+      %p Another wsrm
+        %p< "Foo\nBar"
+      %p One more wsrm
+        %img
+        %pre><
+          foo
+          bar
+        %img
+    %h2 That's it folks!
