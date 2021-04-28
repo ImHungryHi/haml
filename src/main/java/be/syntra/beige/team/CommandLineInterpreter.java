@@ -116,18 +116,22 @@ public class CommandLineInterpreter {
             else error = "Wrong command. Use \"--help\" for commands.\n";
         }
         else {
-            for(int i = 0; i<args.length; i++){
-                String command = args[i];
-                if(command.contains(":") && countDoublePoint(command)){
-                    String[] arr = command.split(":");
-                    String input = arr[0];
-                    String output = arr[1];
-                    if (checkNameInputOutput(input,output)) {
-                        addToFileNames(input, output);
+            if(args.length == 2 && checkNameInputOutput(args[0],args[1])){
+                addToFileNames(args[0], args[1]);
+            } else {
+                for (int i = 0; i < args.length; i++) {
+                    String command = args[i];
+                    if (command.contains(":") && countDoublePoint(command)) {
+                        String[] arr = command.split(":");
+                        String input = arr[0];
+                        String output = arr[1];
+                        if (checkNameInputOutput(input, output)) {
+                            addToFileNames(input, output);
+                        }
+                    } else {
+                        error = "Wrong command. Use \"--help\" for commands.\n";
+                        isError = true;
                     }
-                } else {
-                    error = "Wrong command. Use \"--help\" for commands.\n";
-                    isError = true;
                 }
             }
         }
