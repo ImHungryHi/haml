@@ -3,6 +3,7 @@ package be.syntra.beige.team;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 /**
@@ -25,10 +26,7 @@ public class Writer {
     String inputFileName;
     String outputFileName;
     ArrayList<String> htmlElements;
-
-    // Temporary:
-    // Hardcoded filepath
-    String outputFilePath = System.getProperty("user.dir") + "/src/main/java/be/syntra/beige/team/";
+    Path outputFilePath = CommandLineInterpreter.isToDirectory() ? CommandLineInterpreter.getOutputPathForDirectory() : CommandLineInterpreter.getDIRPATH();
 
     public Writer(String inputFileName, String outputFileName, ArrayList<String> htmlElements) {
         this.inputFileName = inputFileName;
@@ -37,12 +35,10 @@ public class Writer {
     }
 
     private void createFile(){
-        // Create outputfile
-        //
         try {
-            File outputFile = new File(outputFilePath + outputFileName);
+            File outputFile = new File(outputFilePath + "/" + outputFileName);
             if (outputFile.createNewFile()) {
-                System.out.println("File created: " + outputFile.getName());
+                System.out.println(CommandLineInterpreter.isUpdate()? "File updated: " + outputFile.getName() : "File created: " + outputFile.getName());
             } else {
                 // Delete existing file & recreate it
                 if (outputFile.delete()) {
@@ -57,24 +53,29 @@ public class Writer {
         }
     }
 
-    public void writeToOutputFile(){
-        // Create file
-        createFile();
-
-        // Write to created file
-        try {
-            FileWriter fileWriter = new FileWriter(outputFilePath + outputFileName);
-
-            for(String line : htmlElements){
-                fileWriter.write(line + "\n");
+    public void writeToOutputFile() {
+        if (outputFileName == null) {
+            for (String line : htmlElements) {
+                System.out.println(line);
             }
+        } else {
+            createFile();
 
-            fileWriter.close();
+            // Write to created file
+            try {
+                FileWriter fileWriter = new FileWriter(outputFilePath + "/" + outputFileName);
 
-            System.out.println("Successfully wrote to the outputfile.");
-        } catch (IOException e) {
-            System.out.println("An error occurred while writing to outputfile.");
-            e.printStackTrace();
+                for (String line : htmlElements) {
+                    fileWriter.write(line + "\n");
+                }
+
+                fileWriter.close();
+
+//                System.out.println("Successfully wrote to the outputfile.");
+            } catch (IOException e) {
+                System.out.println("An error occurred while writing to outputfile.");
+                e.printStackTrace();
+            }
         }
     }
 }

@@ -40,14 +40,19 @@ public class HamlConverter {
     // Methods to compile HAML code to proper HamlDataElement object parameters
     //
 
-    // Return the linenumber in the .haml file
-    //
+    /**
+     *
+     * @return Return the linenumber in the .haml file
+     */
     public static int returnLineNumber() {
         return ++HamlLineCounter;
     }
 
-    // Return the depth of the element based on the indentation
-    //
+    /**
+     *
+     * @param input: line of text read in file.
+     * @return Return the depth of the element based on the indentation
+     */
     public static int returnDepth(String input) {
         int depth = 0;
         int pos = 0;
@@ -64,29 +69,44 @@ public class HamlConverter {
         return depth;
     }
 
-    // Helper method to return a haml line, ignoring the indentation
-    //
+
+    /**
+     *
+     * @param input: line of text read in file.
+     * @return return a haml line, ignoring the indentation
+     */
     public static String inputZeroDepthForm(String input){
         return input.substring(returnDepth(input) * Config.LENGTH_INDENTATION);
     }
 
-    // Helper method to return first character of a haml line, ignoring the indentation
-    //
+    /**
+     *
+     * @param input: line of text read in file.
+     * @return return first character of a haml line, ignoring the indentation
+     */
     public static char firstChar(String input) {
         String normalizedInput = input.trim();
         char ch1 = normalizedInput.charAt(0);
         return ch1;
     }
 
-    // Return true if the haml line contains a tag
-    //
+
+    /**
+     *
+     * @param input: line of text read in file.
+     * @return true if the haml line contains a tag
+     */
     public static boolean returnIsTag(String input) {
         char ch1 = firstChar(input);
         return (ch1 == '%' || ch1 == '#' || ch1 == '.');
     }
 
-    // Return the tag name
-    //
+
+    /**
+     *
+     * @param input: line of text read in file.
+     * @return the tag name
+     */
     public static String returnTagName(String input) {
         String tagName = null;
 
@@ -104,8 +124,12 @@ public class HamlConverter {
         return tagName;
     }
 
-    // Return the id name
-    //
+
+    /**
+     *
+     * @param input: line of text read in file.
+     * @return the id name
+     */
     public static String returnIdName(String input) {
         String str = inputZeroDepthForm(input);
         String id = null;
@@ -140,8 +164,11 @@ public class HamlConverter {
         return id;
     }
 
-    // Return whether text was found in line
-    //
+    /**
+     *
+     * @param input: line of text read in file.
+     * @return true if text was found in line
+     */
     public static boolean returnHasText(String input) {
         boolean hasText = false;
 
@@ -169,8 +196,12 @@ public class HamlConverter {
         return hasText;
     }
 
-    // Return the actual text content found in the line
-    //
+
+    /**
+     *
+     * @param input: line of text read in file.
+     * @return the actual text content found in the line
+     */
     public static String returnTextContent(String input) {
         String textContent = "";
 
@@ -206,8 +237,12 @@ public class HamlConverter {
         return textContent;
     }
 
-    // Return whether a comment was found in line
-    //
+
+    /**
+     *
+     * @param input: line of text read in file.
+     * @return true if a comment was found in line
+     */
     public static boolean returnIsComment(String input) {
         boolean isComment = false;
         String input_Z_D_F = inputZeroDepthForm(input);
@@ -219,8 +254,11 @@ public class HamlConverter {
         return isComment;
     }
 
-    // Return the comment type found in line (htmlComment or hamlComment)
-    //
+    /**
+     *
+     * @param input: line of text read in file.
+     * @return the comment type found in line (htmlComment or hamlComment)
+     */
     public static String returnCommentType(String input) {
        if (returnIsComment(input)) {
            input = inputZeroDepthForm(input);
@@ -233,8 +271,12 @@ public class HamlConverter {
        return "";
     }
 
-    // Return the comment content
-    //
+
+    /**
+     *
+     * @param input: line of text read in file.
+     * @return the comment content
+     */
     public static String returnCommentContent(String input) {
         // MARKED AS OBSOLETE, returnTextContent method covers this functionality
         //
@@ -242,8 +284,11 @@ public class HamlConverter {
         return null;
     }
 
-    // Return true if Whitespace removal symbols were found
-    //
+    /**
+     *
+     * @param input: line of text read in file.
+     * @return true if Whitespace removal symbols were found
+     */
     public static boolean returnHasWSRM(String input){
         boolean hasWSRM = false;
         String trimmedInput = input.trim(); // Remove leading and trailing spaces (ie indents)
@@ -312,8 +357,12 @@ public class HamlConverter {
         return hasWSRM;
     }
 
-    // Return the type(s) of Whitespace removal symbols found
-    //
+
+    /**
+     *
+     * @param input: line of text read in file.
+     * @return the type(s) of Whitespace removal symbols found
+     */
     public static String returnWsrmType(String input){
         String wsrmType = "";
         if(returnHasWSRM(input)){
@@ -324,17 +373,11 @@ public class HamlConverter {
     }
 
 
-
-    // OBSOLETE returnHasEscaping method here (boolean)
-    // Return if escape symbol was found in line
-    //
-
-    // OBSOLETE returnEscapedContent method here (String)
-    // Return escaped content found in line
-    //
-
-    // Return classNames
-    //
+    /**
+     *
+     * @param input: line of text read in file.
+     * @return classNames
+     */
     public static String returnClassName(String input) {
         String className = null;
         String str = inputZeroDepthForm(input);
@@ -439,6 +482,11 @@ public class HamlConverter {
         return attributes;
     }
 
+    /**
+     *
+     * @param input haml input line
+     * @return content of attributes
+     */
     private static String extractAttributeContent(String input) {
         int idxOpenAccolade = input.indexOf("{"),
                 idxCloseAccolade = input.indexOf("}"),
@@ -486,8 +534,12 @@ public class HamlConverter {
         return input;
     }
 
-    // Convert a String to a HamlDataElement object
-    //
+
+    /**
+     * Convert a String to a HamlDataElement object
+     * @param input
+     * @return HamlDataElement
+     */
     public static HamlDataElement convertToElement(String input){
         //
         // Retrieve data from input string and convert to HamlDataElement object parameters
@@ -567,9 +619,12 @@ public class HamlConverter {
         return el;
     }
 
-    // Converts the hamlDataElements array of a Haml object to
-    // a nested array of HamlDataElements usable for the HtmlConverter
-    //
+    /**
+     * Converts the hamlDataElements array of a Haml object to
+     * a nested array of HamlDataElements usable for the HtmlConverter
+     * @param hamlData
+     * @return HamlData
+     */
     static HamlData nestHamlDataElements(HamlData hamlData){
         ArrayList<HamlDataElement> originalElements = hamlData.getHamlDataElements();
         ArrayList<HamlDataElement> nestedElements = new ArrayList<>();
