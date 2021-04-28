@@ -13,9 +13,9 @@ Clone repository to locale.
 Use the compiler in therminal as follows:
 
     ### One-to-one Mode
-        Compile a *.haml to the therminal 
+        Compile a *.haml to the therminal (when no output) or compile to a designated outputfil
                 
-                java -jar HamlIt.jar <input.haml>
+                java -jar HamlIt.jar <input.haml> [output.html]
 
     ### Many-to-many Mode
         Compile index.haml to index.html
