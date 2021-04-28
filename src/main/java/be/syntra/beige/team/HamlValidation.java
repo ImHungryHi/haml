@@ -75,6 +75,14 @@ public class HamlValidation {
         HamlDataElement currEl;
         HamlDataElement nextEl;
 
+        //  HamlData shouldn't be empty
+        //  Probable cause, first line has no zero depth
+        //
+        if(objToValidate.size() < 1){
+            validatedHaml.valid = false;
+            validatedHaml.hamlErrors.add("First line should start at zero depth.");
+        }
+
         for(int i = 0 ; i < objToValidate.size(); i++){
             currEl = objToValidate.get(i);
             nextEl = i < objToValidate.size() - 1 ? objToValidate.get(i+1) : null;
@@ -90,6 +98,7 @@ public class HamlValidation {
                 validatedHaml.valid = false;
                 validatedHaml.hamlErrors.add("Nesting error on line " + nextEl.getLineNumber());
             }
+
         }
 
         // Return HamlValidation object
