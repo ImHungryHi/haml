@@ -36,7 +36,7 @@ public class Writer {
 
     private void createFile(){
         try {
-            File outputFile = new File(outputFilePath + "\\" + outputFileName);
+            File outputFile = new File(outputFilePath + "/" + outputFileName);
             if (outputFile.createNewFile()) {
                 System.out.println(CommandLineInterpreter.isUpdate()? "File updated: " + outputFile.getName() : "File created: " + outputFile.getName());
             } else {

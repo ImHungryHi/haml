@@ -56,7 +56,7 @@ public class ReaderHaml {
         HamlData myHamlData = null;
         BufferedReader br = null;
         try {
-            br = new BufferedReader(new FileReader(filePath + "\\" + inputFileName));
+            br = new BufferedReader(new FileReader(filePath + "/" + inputFileName));
             String line;
 
 
