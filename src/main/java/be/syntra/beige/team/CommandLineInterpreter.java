@@ -242,7 +242,7 @@ public class CommandLineInterpreter {
         BasicFileAttributes attrHaml = Files.readAttributes(fileHaml, BasicFileAttributes.class);
 
         String nameHtml = nameHaml.split("\\.")[0] + ".html";
-        File fileCheck = new File(DIRPATH + "/" + nameHtml);
+        File fileCheck = new File(DIRPATH + "\\" + nameHtml);
 
         if (fileCheck.isFile()) {
             Path fileHtml = Paths.get(nameHtml);

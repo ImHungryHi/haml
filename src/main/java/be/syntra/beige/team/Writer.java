@@ -36,7 +36,7 @@ public class Writer {
 
     private void createFile(){
         try {
-            File outputFile = new File(outputFilePath + "/" + outputFileName);
+            File outputFile = new File(outputFilePath + "\\" + outputFileName);
             if (outputFile.createNewFile()) {
                 System.out.println(CommandLineInterpreter.isUpdate()? "File updated: " + outputFile.getName() : "File created: " + outputFile.getName());
             } else {
@@ -63,7 +63,7 @@ public class Writer {
 
             // Write to created file
             try {
-                FileWriter fileWriter = new FileWriter(outputFilePath + "/" + outputFileName);
+                FileWriter fileWriter = new FileWriter(outputFilePath + "\\" + outputFileName);
 
                 for (String line : htmlElements) {
                     fileWriter.write(line + "\n");

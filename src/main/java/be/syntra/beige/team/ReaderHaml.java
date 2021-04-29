@@ -75,7 +75,7 @@ public class ReaderHaml {
             // Optimize hamlDataElements array in the Haml object for the Htmlconverter
             HamlConverter.nestHamlDataElements(myHamlData);
         } catch (Exception e){
-            e.printStackTrace();
+            System.out.println(e +": your inputfile was not correct or does not exist");
         } finally {
             br.close();
         }
