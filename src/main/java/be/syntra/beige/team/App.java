@@ -64,7 +64,7 @@ public class App {
                         System.out.println(e + ":" + "watching failed");
                     }
                 }
-            } else System.out.println(interpreter.getError());
+            } else if(!interpreter.isHelp()) System.out.println(interpreter.getError());
         } catch (Exception e){
             e.printStackTrace();
         }

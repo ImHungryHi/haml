@@ -33,6 +33,7 @@ public class CommandLineInterpreter {
     private static Path inputPathForDirectory;
     private static Path outputPathForDirectory;
     private static boolean isError = false;
+    private boolean help = false;
     private static String error = "Something went wrong. Check \"--help\" for commands";
 
 
@@ -78,6 +79,11 @@ public class CommandLineInterpreter {
     public static boolean isUpdate() {
         return update;
     }
+
+    public boolean isHelp() {
+        return help;
+    }
+
     /*
     OTHER METHODS
      */
@@ -183,6 +189,7 @@ public class CommandLineInterpreter {
      *  Prints commands to console
      */
     public void showCommands(){
+        help = true;
         System.out.println("# Compiles index.haml to index.html.");
         System.out.println("$ java -jar HamlIt.jar index.haml:index.html \n");
 
