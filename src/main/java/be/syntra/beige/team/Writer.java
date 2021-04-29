@@ -63,7 +63,7 @@ public class Writer {
 
             // Write to created file
             try {
-                FileWriter fileWriter = new FileWriter(outputFilePath + "\\" + outputFileName);
+                FileWriter fileWriter = new FileWriter(outputFilePath + "/" + outputFileName);
 
                 for (String line : htmlElements) {
                     fileWriter.write(line + "\n");
