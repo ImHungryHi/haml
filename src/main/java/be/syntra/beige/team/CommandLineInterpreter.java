@@ -1,14 +1,11 @@
 package be.syntra.beige.team;
 
-
-
 import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
-
 
 /** interpreter of command lines:
 
